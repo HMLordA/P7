@@ -12,7 +12,7 @@ Robbins_Monro_Call::Robbins_Monro_Call(){}
 
 Robbins_Monro_Call::Robbins_Monro_Call(double S0, double K, double T, double vol, double r):S0(S0), K(K), T(T), vol(vol), r(r){}
 
-double Robbins_Monro_Call::Payoff_Call(double G) const {
+double Robbins_Monro_Call::Payoff_Call(const Vector & G) const {
     
     double S = StockBS(G);
     
@@ -20,8 +20,8 @@ double Robbins_Monro_Call::Payoff_Call(double G) const {
     
 }
 
-double Robbins_Monro_Call::StockBS(double G) const {
+double Robbins_Monro_Call::StockBS(const Vector & G) const {
     
-    return S0 * exp((r - 0.5 * pow(vol,2)) * T + vol * sqrt(T) * G );
+    return S0 * exp((r - 0.5 * pow(vol,2)) * T + vol * sqrt(T) * G(0) );
     
 }

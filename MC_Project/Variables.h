@@ -18,12 +18,11 @@
 #include <boost/numeric/ublas/cholesky.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
-
+/*
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_linalg.h>
 #include <gsl/gsl_blas.h>
-
-#include <vector>
+*/
 
 typedef boost::mt19937 generator;
 typedef boost::normal_distribution<> normal_dist;
@@ -109,6 +108,7 @@ public:
     Vector operator()();
     
 private:
+    Gaussian G;
     int size;
     Vector mu;
     Matrix sigma;

@@ -31,6 +31,7 @@ double Uniform::operator()() {
 Gaussian::Gaussian(double mu, double sigma) : mu(mu), sigma(sigma) {
     
     gen.seed(static_cast<unsigned int>(std::time(0)));
+    //gen.seed(0);
 
 }
 
@@ -54,8 +55,8 @@ double Gaussian::operator()() {
 // Constructeur qui peut jouer le role du constructeur par default
 Gaussian_Vector::Gaussian_Vector(Vector & mu, Matrix & sigma, int size): mu(mu), sigma(sigma),size(size){
     
+    G = Gaussian(0.0,1.0);
     sigmaSqrt = sigma;
-    
     cholesky_decompose<Matrix,Matrix>(sigma,sigmaSqrt);
     
 }
@@ -64,7 +65,7 @@ Gaussian_Vector::Gaussian_Vector(Vector & mu, Matrix & sigma, int size): mu(mu),
 Vector Gaussian_Vector::operator()(){
     
     value.clear();
-    Gaussian G(0.0,1.0);
+    
     Vector v(size);
     
     for (int i=0; i<size; i++){

@@ -14,7 +14,7 @@ Robbins_Monro_BestOfCall::Robbins_Monro_BestOfCall(double S01, double S02, doubl
 
 
 // Best of Calls solution Exacte
-double Robbins_Monro_BestOfCall::Payoff_BestOfCall (std::vector<double> & G) const {
+double Robbins_Monro_BestOfCall::Payoff_BestOfCall (const Vector & G) const {
     
     double S = StockBS_BestOfCall(G);
     
@@ -22,7 +22,7 @@ double Robbins_Monro_BestOfCall::Payoff_BestOfCall (std::vector<double> & G) con
     
 }
 
-double Robbins_Monro_BestOfCall::StockBS_BestOfCall(std::vector<double> & G) const {
+double Robbins_Monro_BestOfCall::StockBS_BestOfCall(const Vector & G) const {
     
     double ST1 = S01*exp( (r-pow(vol1,2)/2) *T + vol1*G[0] );
     double ST2 = S02*exp( (r-pow(vol2,2)/2) *T + vol2*G[1] );

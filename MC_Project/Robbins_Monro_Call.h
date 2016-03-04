@@ -11,6 +11,9 @@
 
 #include <stdio.h>
 #include <cmath>
+#include <boost/numeric/ublas/vector.hpp>
+
+typedef boost::numeric::ublas::vector<double> Vector;
 
 class Robbins_Monro_Call{
 
@@ -19,8 +22,8 @@ public:
     Robbins_Monro_Call();
     Robbins_Monro_Call(double S0, double K, double T, double vol, double r);
     
-    double Payoff_Call(double G) const;
-    double StockBS(double G) const;
+    double Payoff_Call(const Vector & G) const;
+    double StockBS(const Vector &  G) const;
     
     double S0;
     double K;
