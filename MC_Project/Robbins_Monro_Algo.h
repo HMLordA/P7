@@ -13,6 +13,8 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
+#include <boost/math/special_functions/erf.hpp>
+
 
 typedef boost::numeric::ublas::vector<double> Vector;
 
@@ -23,9 +25,9 @@ double N(double d){
     double res;
     
     if (d>0)
-        res = 0.5 * erf(d/sqrt(2)) + 0.5; // pas besoin de sigma ici car on incorpore sigma dans note d1/2
+        res = 0.5 * boost::math::erf(d/sqrt(2.0)) + 0.5; // pas besoin de sigma ici car on incorpore sigma dans note d1/2
     else
-        res = 0.5 + 0.5 * erf(d/sqrt(2));
+        res = 0.5 + 0.5 * boost::math::erf(d/sqrt(2.0));
     
     return res;
     
@@ -78,8 +80,8 @@ Vector Robbins_Monro_Algo(int M, double alpha, double gamma0, Vector theta, doub
     cout <<"L'esperence avec changement : "<< exp(-Obj.r*Obj.T) * S1/M << endl;
 //    cout <<"L'esperence avec changement thhhh: "<< exp(-Obj.r*Obj.T) * Sth1/M << endl;
     
-    cout <<"L'esperance du carré simple : "<< S2/M << endl;
-    cout <<"L'esperance du carré avec changement : "<< Sreal2/M << endl;
+    cout <<"L'esperance du carre simple : "<< S2/M << endl;
+    cout <<"L'esperance du carre avec changement : "<< Sreal2/M << endl;
     
     // double variance = 1.0/(M-1)*(Sreal2-M*(Sreal1/M)*(Sreal1/M));
     // cout <<"La variance : "<< variance << endl;

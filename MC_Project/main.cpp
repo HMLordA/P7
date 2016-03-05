@@ -78,7 +78,7 @@ int main(int argc, const char * argv[]) {
     double vol2=0.15;
     double r=0.05;
     
-    int M=100000;
+    int M=1000000;
     double alpha=0.500001;
     double gamma0=1.0;
     Vector theta(2,0);
