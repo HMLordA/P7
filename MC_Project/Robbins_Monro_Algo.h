@@ -55,12 +55,20 @@ Vector Robbins_Monro_Algo(int M, double alpha, double gamma0, Vector theta, doub
 //    double Sth1=0.0;
 //    double Sth2=0.0;
 //    double th=2.1963;
-    
+    int counter = 0;
     for (int n=0; n<M; ++n){
         
         g = G();
-        
-        theta = theta - (gamma0/pow(n+1,alpha)) * (2*theta - g) * (pow((Obj.*F_Payoff)(g-theta),2)/(1+pow((Obj.*F_Tilda_Control)(-theta),2 * c)));
+        if (n == counter)
+		{
+			cout <<"Theta at "<<n<<" : " <<theta[0]<<endl;
+			if (n < 100)
+				counter+=1;
+			else
+				counter += M/100;
+		}
+		Vector d_theta = (gamma0/pow(n+1,alpha)) * (2*theta - g) * (pow((Obj.*F_Payoff)(g-theta),2)/(1+pow((Obj.*F_Tilda_Control)(-theta),2 * c)));
+        theta = theta - d_theta;
 
         S1 += (Obj.*F_Payoff)(g+theta) * exp(inner_prod(-theta,g) - 0.5 * inner_prod(theta,theta));
         S2 += pow((Obj.*F_Payoff)(g+theta) * exp(inner_prod(-theta,g) - 0.5 * inner_prod(theta,theta)),2);
@@ -76,7 +84,7 @@ Vector Robbins_Monro_Algo(int M, double alpha, double gamma0, Vector theta, doub
     cout <<"Le theta optimal : "<< theta << endl;
     
     cout <<"L'esperance simple : "<< exp(-Obj.r*Obj.T) * Sreal1/M << endl;
-//    cout <<"Vrai Prix Call : "<< Call_Price(Obj.S0,Obj.T,Obj.vol,Obj.r,Obj.K) << endl;
+    cout <<"Vrai Prix Call : "<< Call_Price(Obj.S0,Obj.T,Obj.vol,Obj.r,Obj.K) << endl;
     cout <<"L'esperence avec changement : "<< exp(-Obj.r*Obj.T) * S1/M << endl;
 //    cout <<"L'esperence avec changement thhhh: "<< exp(-Obj.r*Obj.T) * Sth1/M << endl;
     

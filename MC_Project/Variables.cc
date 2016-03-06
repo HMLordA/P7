@@ -8,12 +8,15 @@
 
 #include "Variables.h"
 #include <ctime>
+#include <iostream>
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@___UNIFORM___@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 Uniform::Uniform(double a, double b) : a(a), size(b-a) {
     
-    gen.seed(static_cast<unsigned int>(std::time(0)));
+	unsigned int seed = static_cast<unsigned int>(std::time(0));
+    gen.seed(seed);
+	std::cout <<"Seed : "<<seed<<std::endl;
 
 }
 
@@ -30,9 +33,11 @@ double Uniform::operator()() {
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@___GAUSSIAN___@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 Gaussian::Gaussian(double mu, double sigma) : mu(mu), sigma(sigma) {
-    
-    gen.seed(static_cast<unsigned int>(std::time(0)));
+	
+	unsigned int seed = static_cast<unsigned int>(std::time(0));
+    gen.seed(seed);
     //gen.seed(0);
+	std::cout <<"Seed : "<<seed<<std::endl;
 
 }
 
@@ -54,9 +59,9 @@ double Gaussian::operator()() {
 // Variable aléatoire Gausienne
 
 // Constructeur qui peut jouer le role du constructeur par default
-Gaussian_Vector::Gaussian_Vector(Vector & mu, Matrix & sigma, int size): mu(mu), sigma(sigma),size(size){
+Gaussian_Vector::Gaussian_Vector(Vector & mu, Matrix & sigma, int size): mu(mu), sigma(sigma),size(size),G(0.0,1.0){
     
-    G = Gaussian(0.0,1.0);
+    //G = Gaussian(0.0,1.0);
     sigmaSqrt = sigma;
     cholesky_decompose<Matrix,Matrix>(sigma,sigmaSqrt);
     
