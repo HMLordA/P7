@@ -145,7 +145,7 @@ Vector NewtonRaphson1d(const Matrix& G, double epsilon, int M)
 	return theta;
 }
 
-int main(int argc, const char** argv)
+int main1(int argc, const char** argv)
 {
 	Random::Randomize(time(0));
 	cout<<setprecision(5);
@@ -189,7 +189,7 @@ int main(int argc, const char** argv)
 	}
 	Vector optimal_theta = NewtonRaphson1d(v_gaussian,epsilon,N);*/
 	
-	Vector optimal_theta = Vector(DIM,1.0);
+	Vector optimal_theta = Vector(DIM,1.20629);
 	cout<<endl<<"Optimal theta : ";
 	for (int k=0;k<DIM;k++)
 		cout<<optimal_theta[k]<<",";

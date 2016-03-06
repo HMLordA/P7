@@ -73,14 +73,14 @@ int main(int argc, const char * argv[]) {
     
     double S01=100.0;
     double S02=105.0;
-    double K=140.0;
+    double K=110.0;
     double T=10.0;
     double vol1=0.2;
     double vol2=0.15;
     double r=0.05;
     
-    int M=100000;
-    double alpha=0.750001;
+    int M=10000000;
+    double alpha=0.90001;
     double gamma0=1.0;
     Vector theta(NB_ASSETS,0);
     double c=1.0;
