@@ -24,13 +24,13 @@ typedef boost::numeric::ublas::identity_matrix<double> Identity_Matrix;
 
 #include <ctime>
 
-static const double T = 10.0;
+static const double T = 1.0;
 static const double S01 = 100.0;
 static const double S02 = 105.0;
 static const double sigma1 = 0.2;
 static const double sigma2 = 0.15;
 static const double r = 0.05;
-static const double L = 110.0;
+static const double L = 140.0;
 static const double rho = 0.0; //0.3;
 //const double L = 60.0;
 
@@ -145,16 +145,16 @@ Vector NewtonRaphson1d(const Matrix& G, double epsilon, int M)
 	return theta;
 }
 
-int main1(int argc, const char** argv)
+int main(int argc, const char** argv)
 {
 	Random::Randomize(time(0));
 	cout<<setprecision(5);
-	const double M = atof(argv[1]);
-	const double N = atof(argv[2]);
+	const double M = 1000000;
+	const double N = 100000;
 
 
 	//3.2 Prix standard de l'option BestOf
-	/*{
+	{
 		double res_sum = 0.0;
 		double res_sum_sq = 0.0;
 		for (int i = 0; i < M; i++)
@@ -187,9 +187,9 @@ int main1(int argc, const char** argv)
 			v_gaussian(i,j) = Random::Gaussian();
 		}
 	}
-	Vector optimal_theta = NewtonRaphson1d(v_gaussian,epsilon,N);*/
+	Vector optimal_theta = NewtonRaphson1d(v_gaussian,epsilon,N);
 	
-	Vector optimal_theta = Vector(DIM,1.20629);
+	//Vector optimal_theta = Vector(DIM,1.20629);
 	cout<<endl<<"Optimal theta : ";
 	for (int k=0;k<DIM;k++)
 		cout<<optimal_theta[k]<<",";

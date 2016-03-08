@@ -84,7 +84,7 @@ Vector Robbins_Monro_Algo(int M, double alpha, double gamma0, Vector theta, doub
     cout <<"Le theta optimal : "<< theta << endl;
     
     cout <<"L'esperance simple : "<< exp(-Obj.r*Obj.T) * Sreal1/M << endl;
-    cout <<"Vrai Prix Call : "<< Call_Price(Obj.S0,Obj.T,Obj.vol,Obj.r,Obj.K) << endl;
+//    cout <<"Vrai Prix Call : "<< Call_Price(Obj.S0,Obj.T,Obj.vol,Obj.r,Obj.K) << endl;
     cout <<"L'esperence avec changement : "<< exp(-Obj.r*Obj.T) * S1/M << endl;
 //    cout <<"L'esperence avec changement thhhh: "<< exp(-Obj.r*Obj.T) * Sth1/M << endl;
     

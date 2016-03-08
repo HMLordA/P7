@@ -4,6 +4,8 @@
 #include <iostream>
 #include <iomanip>
 
+using namespace std;
+
 static const double T = 10.0;
 static const double S0 = 100.0;
 static const double sigma = 0.2;
@@ -64,7 +66,7 @@ double NewtonRaphson1d(double *G, double epsilon, int M)
     return theta;
 }
 
-int main(int argc, const char** argv)
+int main1(int argc, const char** argv)
 {
     Random::Randomize(0);
     cout<<setprecision(5);
