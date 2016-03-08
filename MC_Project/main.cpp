@@ -12,6 +12,7 @@
 #include "Robbins_Monro_Call.h"
 #include "Robbins_Monro_BestOfCall.h"
 #include "Robbins_Monro_Algo.h"
+#include "Robbins_Monro_Algo_Normal_Distrib.h"
 
 using namespace std;
 /*
@@ -73,7 +74,9 @@ int main(int argc, const char * argv[]) {
     
     double S01=100.0;
     double S02=105.0;
+
     double K=110.0;
+
     double T=1.0;
     double vol1=0.2;
     double vol2=0.15;
@@ -81,6 +84,7 @@ int main(int argc, const char * argv[]) {
     
     int M=10000000;
     double alpha=0.750001;
+
     double gamma0=1.0;
     Vector theta(NB_ASSETS,0);
     double c=1.0;
@@ -91,9 +95,11 @@ int main(int argc, const char * argv[]) {
 	//Robbins_Monro_Call rmc(S01,K,T,vol1,r);
     Gaussian_Vector G(v,m,NB_ASSETS);
 
+
     Vector thet = Robbins_Monro_Algo<Robbins_Monro_BestOfCall, Gaussian_Vector, &Robbins_Monro_BestOfCall::Payoff_BestOfCall, &Robbins_Monro_BestOfCall::StockBS_BestOfCall>(M, alpha, gamma0, theta, c, rmb, G);
     //Vector thet = Robbins_Monro_Algo<Robbins_Monro_Call, Gaussian_Vector, &Robbins_Monro_Call::Payoff_Call, &Robbins_Monro_Call::StockBS>(M, alpha, gamma0, theta, c, rmc, G);
-    
+    //Vector thet = Robbins_Monro_Algo_Normal_Distrib<Robbins_Monro_Call, Gaussian_Vector, &Robbins_Monro_Call::Payoff_Call>(M, alpha, gamma0, theta, c, rmc, G);
+
 
 /*
     //Identity_Matrix m (3);

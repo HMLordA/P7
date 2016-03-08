@@ -17,6 +17,8 @@ double Robbins_Monro_Call::Payoff_Call(const Vector & G) const {
     double S = StockBS(G);
     
     return (S-K>0)?S-K:0;
+	//return (S-K>0)?1:0;
+	//return (K-S>0)?K-S:0;
     
 }
 
