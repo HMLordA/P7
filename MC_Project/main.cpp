@@ -75,7 +75,7 @@ int main(int argc, const char * argv[]) {
     double S01=100.0;
     double S02=105.0;
 
-    double K=110.0;
+    double K=120.0;
 
     double T=1.0;
     double vol1=0.2;

@@ -67,7 +67,7 @@ Vector Robbins_Monro_Algo(int M, double alpha, double gamma0, Vector theta, doub
 			else
 				counter += M/100;
 		}
-		Vector d_theta = (gamma0/pow(n+1,alpha)) * (2*theta - g) * (pow((Obj.*F_Payoff)(g-theta),2)/(1+pow((Obj.*F_Tilda_Control)(-theta),2 * c)));
+		Vector d_theta = ((gamma0/pow(n+1,alpha))+0.0001) * (2*theta - g) * (pow((Obj.*F_Payoff)(g-theta),2)/(1+pow((Obj.*F_Tilda_Control)(-theta),2 * c)));
         theta = theta - d_theta;
 
         S1 += (Obj.*F_Payoff)(g+theta) * exp(inner_prod(-theta,g) - 0.5 * inner_prod(theta,theta));
