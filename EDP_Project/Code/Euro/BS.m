@@ -3,8 +3,7 @@
 %-----------------------------------------------
 
 %- Formule de Black et scholes pour le put europeen vanille.
-function P=BS(t,s)
-global K r sigma
+function P=BS(t,s,K,r,sigma)
 if t==0 
     P=max(K-s,0);
 else

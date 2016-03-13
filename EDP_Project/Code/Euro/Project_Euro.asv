@@ -7,7 +7,7 @@ clear
 %- DONNEES FINANCIERES / FINANCIAL DATA
 %------------------------
 global  K r sigma T Smin Smax lambda mu gamma kappa
-K=100; sigma=0.2; r=0.1; T=1;  Smin=20; Smax=200; lambda = 0.7; mu = 0.0; gamma = 1.0; 
+K=100; sigma=0.2; r=0.1; T=1;  Smin=20; Smax=200; lambda = 0.1; mu = 0.0; gamma = 1.0; 
 
 kappa = exp(mu+gamma^2/2)-1; % JCD : expectancy of eta, which is log-normal
 
@@ -25,7 +25,7 @@ g= @(eta) exp(-(log(eta)-mu)^2/(2*gamma^2))/(sqrt(2*pi)*gamma*eta) ;
 %- DONNEES NUMERIQUES / NUMERICAL DATA
 %------------------------
 global I N p nMerton
-I=20; N=100; p = 10; nMerton = 10;
+I=20; N=40; p = 10; nMerton = 10;
 %I=2*10; N=I*I/10; 
 
 SCHEMA='EE'; 		%- 'EE' or 'EI' or 'CN' 
@@ -88,7 +88,7 @@ case 'CENTRE';  %- CENTERED APPROXIMATION
   for i=1:I-1; A(i,i+1) = -alpha - bet/2; end;
   
   for i=1:I-1;
-      %G(i,i)=0;
+      %G(i,i)=1;
       for j=1:I-1;
           G(i,j) = g(exp(x(j-i)))*exp(x(j-i));
       end;
@@ -96,7 +96,7 @@ case 'CENTRE';  %- CENTERED APPROXIMATION
           
 
   % FILL IN
-  q = @(t) [(-alpha + bet/2)*ul(t);  zeros(I-2,1);  (-alpha - bet/2)* ur(t)];
+  q = @(t) [(-alpha + bet/2)* ul(t);  zeros(I-2,1);  (-alpha - bet/2)* ur(t)];
 
   
 % JCD : not implemented
@@ -155,9 +155,9 @@ for n=0:N-1
     Tug_=Tug(t);
     Tud_=Tud(t);
     q_=q(t);
-    m_=(Id - dt*(A-h*lambda*G))*P;
-    m__=Id - dt*(A-h*lambda*G);
-    P =  (Id - dt*(A-h*lambda*G))*P - dt*(q(t)+Tug(t)+Tud(t));
+    m_=(Id - dt*(A+G))*P;
+    m__=Id - dt*(A+G);
+    P =  (Id - dt*(A+G))*P - dt*(q(t)+Tug(t)+Tud(t));
 
 % JCD : not yet
 %   case 'EI'; 
