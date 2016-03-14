@@ -7,7 +7,7 @@ clear
 %- DONNEES FINANCIERES / FINANCIAL DATA
 %------------------------
 global  K r sigma T Smin Smax lambda mu gamma kappa
-K=100; sigma=0.2; r=0.1; T=1;  Smin=20; Smax=200; lambda = 0.7; mu = 0.0; gamma = 1.0; 
+K=100; sigma=0.2; r=0.1; T=1;  Smin=20; Smax=200; lambda = 0.0; mu = 0.0; gamma = 1.0; 
 
 kappa = exp(mu+gamma^2/2)-1; % JCD : expectancy of eta, which is log-normal
 
@@ -25,7 +25,7 @@ g= @(eta) exp(-(log(eta)-mu)^2/(2*gamma^2))/(sqrt(2*pi)*gamma*eta) ;
 %- DONNEES NUMERIQUES / NUMERICAL DATA
 %------------------------
 global I N p nMerton
-I=20; N=100; p = 10; nMerton = 10;
+I=20; N=40; p = 10; nMerton = 10;
 %I=2*10; N=I*I/10; 
 
 SCHEMA='EE'; 		%- 'EE' or 'EI' or 'CN' 
@@ -149,27 +149,31 @@ for n=0:N-1
   t=n*dt;
 
   %- Schema
-  switch SCHEMA 
-  case 'EE'; 
-    % COMPLETER
-    Tug_=Tug(t);
-    Tud_=Tud(t);
-    q_=q(t);
-    m_=(Id - dt*(A-h*lambda*G))*P;
-    m__=Id - dt*(A-h*lambda*G);
-    P =  (Id - dt*(A-h*lambda*G))*P - dt*(q(t)+Tug(t)+Tud(t));
-
-% JCD : not yet
-%   case 'EI'; 
-%     % COMPLETER
-%     t1=t+dt; 
-%     P = (Id + dt*A)\(P-dt*q(t1));
-% 
-%   case 'CN';
-%     % COMPLETER
-%     q0=q(t);
-%     q1=q(t+dt);
-%     P = (Id + dt/2*A) \ ( (Id - dt/2*A) * P - dt*(q0+q1)/2 );
+  switch SCHEMA
+      case 'EE';
+          % COMPLETER
+          Tug_=Tug(t);
+          Tud_=Tud(t);
+          q_=q(t);
+          m_=(Id - dt*(A-h*lambda*G))*P;
+          m__=Id - dt*(A-h*lambda*G);
+          P =  (Id - dt*(A-h*lambda*G))*P - dt*(q(t)+Tug(t)+Tud(t));
+          
+          % JCD : not yet
+          %   case 'EI';
+          %     % COMPLETER
+          %     t1=t+dt;
+          %     P = (Id + dt*A)\(P-dt*q(t1));
+          %
+      case 'CN';
+          % COMPLETER
+          q0=q(t);
+          q1=q(t+dt);
+          Tug0 = Tug(t);
+          Tug1 = Tug(t+dt);
+          Tud0 = Tud(t);
+          Tud1 = Tud(t+dt);
+          P = (Id+dt/2*(A-h*lambda*G)) \ ( (Id - dt/2*(A-h*lambda*G)) * P - dt/2*((q0+q1+Tug0+Tug1+Tud0+Tud1)));
 
 
   otherwise
