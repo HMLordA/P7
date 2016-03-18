@@ -7,7 +7,7 @@ clear
 %- DONNEES FINANCIERES / FINANCIAL DATA
 %------------------------
 global  K r sigma T Smin Smax lambda mu gamma kappa
-K=100; sigma=0.2; r=0.1; T=1;  Smin=20; Smax=200; lambda = 0.0; mu = 0.0; gamma = 1.0; 
+K=100; sigma=0.2; r=0.1; T=1;  Smin=20; Smax=200; lambda = 0.7; mu = 0.0; gamma = 1.0; 
 
 kappa = exp(mu+gamma^2/2)-1; % JCD : expectancy of eta, which is log-normal
 
@@ -25,7 +25,7 @@ g= @(eta) exp(-(log(eta)-mu)^2/(2*gamma^2))/(sqrt(2*pi)*gamma*eta) ;
 %- DONNEES NUMERIQUES / NUMERICAL DATA
 %------------------------
 global I N p nMerton
-I=20; N=40; p = 10; nMerton = 10;
+I=20; N=100; p = 10; nMerton = 10;
 %I=2*10; N=I*I/10; 
 
 SCHEMA='EE'; 		%- 'EE' or 'EI' or 'CN' 

@@ -1,0 +1,23 @@
+%-----------------------------------------------
+%- FORMULE de Merton.
+%-----------------------------------------------
+
+%- Formule de Black et scholes pour le put europeen vanille.
+function P=Merton(t,s,N)
+% Here t is Tau = T-t, so t = T-tau
+global K r sigma kappa lambda T
+P=zeros(size(s))
+for n=1:N;
+    r_n = r - lambda*kappa+n*mu/(T-t);
+    sigma_n = sqrt(sigma^2+n*gamma^2/(T-t));
+    P = P + exp(-lambda*t)*(lambda*t)^n/fact(n
+end;
+P = P*exp(-rt)
+
+P=ones(size(s))*K*exp(-r*t);
+i=find(s>0);
+tau=sigma^2*t;
+dm=(log(s(i) /K) + r*t - 0.5*tau) / sqrt(tau);
+dp=(log(s(i) /K) + r*t + 0.5*tau) / sqrt(tau);
+P(i)=K*exp(-r*t)*(Normal(-dm)) - s(i).*(Normal(-dp));
+end

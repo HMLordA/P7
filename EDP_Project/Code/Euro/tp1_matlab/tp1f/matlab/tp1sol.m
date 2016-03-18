@@ -6,26 +6,22 @@ clear
 %------------------------
 %- DONNEES FINANCIERES / FINANCIAL DATA
 %------------------------
-global  K r sigma T Smin Smax lambda mu gamma kappa
-K=100; sigma=0.2; r=0.1; T=1;  Smin=20; Smax=200; lambda = 0.0; mu = 0.0; gamma = 1.0; 
-
-kappa = exp(mu+gamma^2/2)-1; % JCD : expectancy of eta, which is log-normal
+global  K r sigma T Smin Smax
+K=100; sigma=0.2; r=0.1; T=1;  Smin=20; Smax=200;  
 
 %- IC : Initial Condition   = function  u0
 %- BD : Boundary Conditions = functions ul, ur
 %- ==> COMPLETE definition of functions u0, ul, ur (inline definitions: see below)
-global ul ur g
+global ul ur
 u0= @(s) max(K-s,0);		%- Initial values (payoff function)
 ul= @(t) K*exp(-r*t)-Smin;	%- ul= left  value, at Smin
 ur= @(t) 0;			%- ur= right value, at Smax
-g= @(eta) exp(-(log(eta)-mu)^2/(2*gamma^2))/(sqrt(2*pi)*gamma*eta) ;
 
 
 %------------------------
 %- DONNEES NUMERIQUES / NUMERICAL DATA
 %------------------------
-global I N p nMerton
-I=20; N=40; p = 10; nMerton = 10;
+I=20; N=40;
 %I=2*10; N=I*I/10; 
 
 SCHEMA='EE'; 		%- 'EE' or 'EI' or 'CN' 
@@ -33,7 +29,7 @@ CENTRAGE='CENTRE'; 	%- 'CENTRE', 'DROIT', 'GAUCHE'
 
 %- Parameters for the graphics:
 global Xmin Xmax Ymin Ymax
-Xmin=log(Smin/K); Xmax=log(Smax/K); Ymin=-20; Ymax=K;
+Xmin=Smin; Xmax=Smax; Ymin=-20; Ymax=K;
 err_scale=0; %- Echelle pour le graphe d'erreur.
 deltan=N/10; %- Eventuellement, Affichage uniquement tous les deltan pas.
 
@@ -54,14 +50,9 @@ fprintf('SCHEMA: %s\n',SCHEMA)
 %- MAILLAGE / MESH
 %--------------------
 %- FILL : dt, h, s (time step, mesh step, mesh) 
-global h
 dt=T/N; 		%- pas de temps  / time step
-h=(Xmax-Xmin)/(I+1); 	%- pas d'espace  / mesh step
-%s=Smin+(1:I)'*h; 	%- maillage      / mesh : column vector of size I, containing the mesh values s_i = Smin + i*h
-s=K*exp(Xmin+(1:I)'*h);
-
-global x
-x= @(i) Xmin + i*h;
+h=(Smax-Smin)/(I+1); 	%- pas d'espace  / mesh step
+s=Smin+(1:I)'*h; 	%- maillage      / mesh : column vector of size I, containing the mesh values s_i = Smin + i*h
 
 %- CFL COEFFICIENT 
 %COMPLETE
@@ -79,48 +70,37 @@ case 'CENTRE';  %- CENTERED APPROXIMATION
 
   %- FILL IN / COMPLETER matrice A, vecteurs alpha et bet de taille I, et fonction q
   A=zeros(I,I);
-  G=zeros(I,I);
   %FILL the values of A(i,i), A(i,i-1), A(i,i+1)
-  alpha=sigma^2/2/h^2;
-  bet=(r-lambda*kappa+sigma^2/2)/h;
-  for i=1:I;   A(i,i) = 2*alpha + r + lambda; end;
-  for i=2:I;   A(i,i-1) = -alpha + bet/2; end;
-  for i=1:I-1; A(i,i+1) = -alpha - bet/2; end;
-  
-  for i=1:I-1;
-      %G(i,i)=0;
-      for j=1:I-1;
-          G(i,j) = g(exp(x(j-i)))*exp(x(j-i));
-      end;
-  end;
-          
+  alpha=sigma^2/2 * s.^2 /h^2;
+  bet=r*s/h;
+  for i=1:I;   A(i,i) = 2*alpha(i) + r; end;
+  for i=2:I;   A(i,i-1) = -alpha(i) + bet(i)/2; end;
+  for i=1:I-1; A(i,i+1) = -alpha(i) - bet(i)/2; end;
 
   % FILL IN
-  q = @(t) [(-alpha + bet/2)*ul(t);  zeros(I-2,1);  (-alpha - bet/2)* ur(t)];
+  q = @(t) [(-alpha(1) + bet(1)/2)* ul(t);  zeros(I-2,1);  (-alpha(end) - bet(end)/2)* ur(t)];
 
-  
-% JCD : not implemented
-% case 'DROIT';	%- FORWARD DIFFERENCES
-% 
-%   A=zeros(I,I);
-%   alpha=sigma^2/2 * s.^2 /h^2;
-%   bet=r*s/h;
-%   for i=1:I;   A(i,i) = 2*alpha(i) + bet(i) + r; end;
-%   for i=2:I;   A(i,i-1) = -alpha(i) ; end;
-%   for i=1:I-1; A(i,i+1) = -alpha(i) - bet(i); end;
-% 
-%   q = @(t) [(-alpha(1))* ul(t);  zeros(I-2,1);  (-alpha(end) - bet(end))* ur(t)];
-% 
-% case 'GAUCHE';	%- BACKWARD DIFFERENCES
-% 
-%   A=zeros(I,I);
-%   alpha=sigma^2/2 * s.^2 /h^2;
-%   bet=r*s/h;
-%   for i=1:I;   A(i,i) = 2*alpha(i) - bet(i) + r; end;
-%   for i=2:I;   A(i,i-1) = -alpha(i) + bet(i) ; end;
-%   for i=1:I-1; A(i,i+1) = -alpha(i) ; end;
-% 
-%   q = @(t) [(-alpha(1) +bet(1))* ul(t);  zeros(I-2,1);  (-alpha(end))* ur(t)];
+case 'DROIT';	%- FORWARD DIFFERENCES
+
+  A=zeros(I,I);
+  alpha=sigma^2/2 * s.^2 /h^2;
+  bet=r*s/h;
+  for i=1:I;   A(i,i) = 2*alpha(i) + bet(i) + r; end;
+  for i=2:I;   A(i,i-1) = -alpha(i) ; end;
+  for i=1:I-1; A(i,i+1) = -alpha(i) - bet(i); end;
+
+  q = @(t) [(-alpha(1))* ul(t);  zeros(I-2,1);  (-alpha(end) - bet(end))* ur(t)];
+
+case 'GAUCHE';	%- BACKWARD DIFFERENCES
+
+  A=zeros(I,I);
+  alpha=sigma^2/2 * s.^2 /h^2;
+  bet=r*s/h;
+  for i=1:I;   A(i,i) = 2*alpha(i) - bet(i) + r; end;
+  for i=2:I;   A(i,i-1) = -alpha(i) + bet(i) ; end;
+  for i=1:I-1; A(i,i+1) = -alpha(i) ; end;
+
+  q = @(t) [(-alpha(1) +bet(1))* ul(t);  zeros(I-2,1);  (-alpha(end))* ur(t)];
 
 otherwise 
 
@@ -149,31 +129,21 @@ for n=0:N-1
   t=n*dt;
 
   %- Schema
-  switch SCHEMA
-      case 'EE';
-          % COMPLETER
-          Tug_=Tug(t);
-          Tud_=Tud(t);
-          q_=q(t);
-          m_=(Id - dt*(A-h*lambda*G))*P;
-          m__=Id - dt*(A-h*lambda*G);
-          P =  (Id - dt*(A-h*lambda*G))*P - dt*(q(t)+Tug(t)+Tud(t));
-          
-          % JCD : not yet
-          %   case 'EI';
-          %     % COMPLETER
-          %     t1=t+dt;
-          %     P = (Id + dt*A)\(P-dt*q(t1));
-          %
-      case 'CN';
-          % COMPLETER
-          q0=q(t);
-          q1=q(t+dt);
-          Tug0 = Tug(t);
-          Tug1 = Tug(t+dt);
-          Tud0 = Tud(t);
-          Tud1 = Tud(t+dt);
-          P = (Id+dt/2*(A-h*lambda*G)) \ ( (Id - dt/2*(A-h*lambda*G)) * P - dt/2*((q0+q1+Tug0+Tug1+Tud0+Tud1)));
+  switch SCHEMA 
+  case 'EE'; 
+    % COMPLETER
+    P =  (Id - dt*A)*P - dt*q(t);
+
+  case 'EI'; 
+    % COMPLETER
+    t1=t+dt; 
+    P = (Id + dt*A)\(P-dt*q(t1));
+
+  case 'CN';
+    % COMPLETER
+    q0=q(t);
+    q1=q(t+dt);
+    P = (Id + dt/2*A) \ ( (Id - dt/2*A) * P - dt*(q0+q1)/2 );
 
 
   otherwise
@@ -189,7 +159,7 @@ for n=0:N-1
  
    %- Error computations:
    %COMPLETER errLI
-   Pex=Merton(t1,s,K,r,sigma,nMerton);		%- Merton
+   Pex=BS(t1,s);		%- Black and Scholes
    errLI=norm(P-Pex,'inf');	%- Linfty error
    fprintf('t=%5.2f; iteration n=%4i; Err.Linf=%8.5f',t1,n+1,errLI);  
    fprintf('\n');
