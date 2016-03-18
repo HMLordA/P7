@@ -1,7 +1,7 @@
 function y=P0(s)
 %- payoff function
 global K
-payoff=2;
+payoff=1;
 switch payoff
 case 1; 
   y=max(K-s,0);

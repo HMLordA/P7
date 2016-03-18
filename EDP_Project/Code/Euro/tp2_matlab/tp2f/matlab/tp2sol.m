@@ -17,7 +17,7 @@ K=100; sigma=0.2; r=0.1; T=1;  Smin=0; Smax=200;
 %------------------------
 %- NUMERICAL DATA
 %------------------------
-N=10;
+N=1000;
 I=50-1;
 
 % choose SCHEME value in: {'EE' , 'EI' , 'CN' , 'EE-AMER' , 'EI-AMER-UL' , 'EI-AMER-NEWTON' , 'EI-AMER-SPLITTING'}
