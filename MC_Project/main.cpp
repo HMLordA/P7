@@ -11,8 +11,11 @@
 #include <cmath>
 #include "Robbins_Monro_Call.h"
 #include "Robbins_Monro_BestOfCall.h"
+#include "Robbins_Monro_CallDownIn.h"
 #include "Robbins_Monro_Algo.h"
 #include "Robbins_Monro_Algo_Normal_Distrib.h"
+#include "Processus.h"
+
 
 using namespace std;
 /*
@@ -62,15 +65,156 @@ double Payoff_maxcall (double L, double G1, double G2, double S1, double S2, dou
     return payoff;
 }
 
+/*
+template<typename value_type, typename function_type>
+inline value_type integral(const value_type a,
+                           const value_type b,
+                           const int l,
+                           const value_type tol,
+                           function_type func)
+{
+    unsigned n = 1U;
+    
+    value_type h = (b - a);
+    value_type I = (func(l,a) + func(l,b)) * (h / 2);
+    
+    for(unsigned k = 0U; k < 8U; k++)
+    {
+        h /= 2;
+        
+        value_type sum(0);
+        for(unsigned j = 1U; j <= n; j++)
+        {
+            sum += func(l,a + (value_type((j * 2) - 1) * h));
+        }
+        
+        const value_type I0 = I;
+        I = (I / 2) + (h * sum);
+        
+        const value_type ratio     = I0 / I;
+        const value_type delta     = ratio - 1;
+        const value_type delta_abs = ((delta < 0) ? -delta : delta);
+        
+        if((k > 1U) && (delta_abs < tol))
+        {
+            break;
+        }
+        
+        n *= 2U;
+    }
+    
+    return I;
+}
+
+double xcarre(double x){
+
+    return x*x;
+    
+}
+
+double xxx(int l, double x){
+    
+    return boost::math::legendre_p(l, x);
+    
+}
+*/
+
 int main(int argc, const char * argv[]) {
     
+    double S=100.0;
+    double K=100.0;
+    double L=97.0;
+    double T=1.0;
+    double vol=0.2;
+    double r=0.05;
+    
+    int M=10000;
+    int n = 5;
+    double alpha=0.950001;
+    
+    double gamma0=1.0;
+    double c=1.0;
+    
+    vector<double> theta;
+    for(int i=0; i<4; i++){
+        theta.push_back(0.0);
+    }
+    
+    Theta_Legendre thetaL(theta);
+    
+    Gaussian G(0.0,1.0);
+    
+    Black_scholes BS(n, S, r, vol, T);
+    BS();
+    BS_Drift_t<Theta_Legendre> BS_Drift(n, S, r, vol, thetaL, T);
+    BS_Drift();
+
+    Robbins_Monro_CallDownIn rmbCID(S, T, vol, r, L, K);
+    
+    Robbins_Monro_SDE_Algo<Robbins_Monro_CallDownIn, BS_Drift_t<Theta_Legendre>, Black_scholes, Gaussian, &Robbins_Monro_CallDownIn::Payoff_Call>(M, alpha, gamma0, thetaL, c, rmbCID, BS_Drift, BS, G);
+
+    /*
+     std::list<std::pair<double,double>> i = BS.current();
+     std::cout << i.size() << std::endl;
+     
+     std::list<std::pair<double,double>>::iterator j;
+     for(j=i.begin(); j != i.end(); ++j)
+     {
+     std::cout << (*j).first << "     " << (*j).second << std::endl;
+     }
+     
+     std::list<std::pair<double,double>> p = BS_Drift.current();
+     std::cout << p.size() << std::endl;
+     
+     std::list<std::pair<double,double>>::iterator m;
+     for(m=p.begin(); m != p.end(); ++m)
+     {
+     std::cout << (*m).first << "     " << (*m).second << std::endl;
+     }
+     */
+    
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+//cout<< integral(0.0, 1.0, 1, 0.01, xxx) <<endl;
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+/*
+    Black_scholes BS(10, 100, 0.04, 0.2, 1);
+    BS();
+    
+    Robbins_Monro_CallDownIn CID(95.0,98.0);
+    
+    cout<< CID.Payoff_Call(BS.current()) <<endl;
+*/
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+/*
+    BS();
+    std::list<std::pair<double,double>> i = BS.current();
+    std::cout << i.size() << std::endl;
+    
+    std::list<std::pair<double,double>>::iterator j;
+    for(j=i.begin(); j != i.end(); ++j)
+    {
+        std::cout << (*j).first << "     " << (*j).second << std::endl;
+    }
+
+    int l=2;
+    double x=-1.0;
+    while (x<1.0){
+    
+        cout<<boost::math::legendre_p(l, x)<<endl;
+        x+=0.1;
+    }
+ */
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    
+/*
 	const int NB_ASSETS = 2;
 
     Matrix m(NB_ASSETS,NB_ASSETS,0);
     for (unsigned i = 0; i < m.size1 (); ++ i){
         m (i, i) = 1;
     }
-    
     
     double S01=100.0;
     double S02=105.0;
@@ -99,7 +243,9 @@ int main(int argc, const char * argv[]) {
     Vector thet = Robbins_Monro_Algo<Robbins_Monro_BestOfCall, Gaussian_Vector, &Robbins_Monro_BestOfCall::Payoff_BestOfCall, &Robbins_Monro_BestOfCall::StockBS_BestOfCall>(M, alpha, gamma0, theta, c, rmb, G);
     //Vector thet = Robbins_Monro_Algo<Robbins_Monro_Call, Gaussian_Vector, &Robbins_Monro_Call::Payoff_Call, &Robbins_Monro_Call::StockBS>(M, alpha, gamma0, theta, c, rmc, G);
     //Vector thet = Robbins_Monro_Algo_Normal_Distrib<Robbins_Monro_Call, Gaussian_Vector, &Robbins_Monro_Call::Payoff_Call>(M, alpha, gamma0, theta, c, rmc, G);
-
+*/
+    
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 /*
     //Identity_Matrix m (3);
