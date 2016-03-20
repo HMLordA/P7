@@ -10,7 +10,7 @@ P=zeros(size(s));
 for n=0:N;
     r_n = r - lambda*kappa+n*mu/t;
     sigma_n = sqrt(sigma^2+n*gamma^2/t);
-    P = P + exp(-lambda*t)*(lambda*t)^n/factorial(n)*exp(r_n*t)*BS(t,s,K,r_n,sigma_n);
+    P = P + exp(-lambda*kappa*t)*(lambda*kappa*t)^n/factorial(n)*exp(r_n*t)*BS(t,s,K,r_n,sigma_n);
 end;
 P = P * exp(-r*t);
 end

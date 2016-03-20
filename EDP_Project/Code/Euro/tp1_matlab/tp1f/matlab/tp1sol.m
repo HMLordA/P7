@@ -21,15 +21,16 @@ ur= @(t) 0;			%- ur= right value, at Smax
 %------------------------
 %- DONNEES NUMERIQUES / NUMERICAL DATA
 %------------------------
-I=20; N=40;
+I=1000; N=40;
 %I=2*10; N=I*I/10; 
 
-SCHEMA='EE'; 		%- 'EE' or 'EI' or 'CN' 
+SCHEMA='CN'; 		%- 'EE' or 'EI' or 'CN' 
 CENTRAGE='CENTRE'; 	%- 'CENTRE', 'DROIT', 'GAUCHE' 
 
 %- Parameters for the graphics:
 global Xmin Xmax Ymin Ymax
-Xmin=Smin; Xmax=Smax; Ymin=-20; Ymax=K;
+%Xmin=Smin; Xmax=Smax; Ymin=-20; Ymax=K;
+Xmin=log(Smin/K); Xmax=log(Smax/K); Ymin=-20; Ymax=K;
 err_scale=0; %- Echelle pour le graphe d'erreur.
 deltan=N/10; %- Eventuellement, Affichage uniquement tous les deltan pas.
 
@@ -51,9 +52,11 @@ fprintf('SCHEMA: %s\n',SCHEMA)
 %--------------------
 %- FILL : dt, h, s (time step, mesh step, mesh) 
 dt=T/N; 		%- pas de temps  / time step
-h=(Smax-Smin)/(I+1); 	%- pas d'espace  / mesh step
-s=Smin+(1:I)'*h; 	%- maillage      / mesh : column vector of size I, containing the mesh values s_i = Smin + i*h
-
+%h=(Smax-Smin)/(I+1); 	%- pas d'espace  / mesh step
+h=(Xmax-Xmin)/(I+1); 	%- pas d'espace  / mesh step
+%s=Smin+(1:I)'*h; 	%- maillage      / mesh : column vector of size I, containing the mesh values s_i = Smin + i*h
+s=K*exp(Xmin+(1:I)'*h); 	%- maillage      / mesh : column vector of size I, containing the mesh values s_i = Smin + i*h
+%x = Xmin
 %- CFL COEFFICIENT 
 %COMPLETE
 cfl=dt/h^2 * (sigma*Smax)^2;
@@ -71,11 +74,16 @@ case 'CENTRE';  %- CENTERED APPROXIMATION
   %- FILL IN / COMPLETER matrice A, vecteurs alpha et bet de taille I, et fonction q
   A=zeros(I,I);
   %FILL the values of A(i,i), A(i,i-1), A(i,i+1)
-  alpha=sigma^2/2 * s.^2 /h^2;
-  bet=r*s/h;
-  for i=1:I;   A(i,i) = 2*alpha(i) + r; end;
-  for i=2:I;   A(i,i-1) = -alpha(i) + bet(i)/2; end;
-  for i=1:I-1; A(i,i+1) = -alpha(i) - bet(i)/2; end;
+  %alpha=sigma^2/2 * s.^2 /h^2;
+  %bet=r*s/h;
+  %for i=1:I;   A(i,i) = 2*alpha(i) + r; end;
+  %for i=2:I;   A(i,i-1) = -alpha(i) + bet(i)/2; end;
+  %for i=1:I-1; A(i,i+1) = -alpha(i) - bet(i)/2; end;
+  alpha=sigma^2/2 /h^2;
+  bet=r/h+sigma^2/2/h;
+  for i=1:I;   A(i,i) = 2*alpha + r; end;
+  for i=2:I;   A(i,i-1) = -alpha + bet/2; end;
+  for i=1:I-1; A(i,i+1) = -alpha - bet/2; end;
 
   % FILL IN
   q = @(t) [(-alpha(1) + bet(1)/2)* ul(t);  zeros(I-2,1);  (-alpha(end) - bet(end)/2)* ur(t)];
