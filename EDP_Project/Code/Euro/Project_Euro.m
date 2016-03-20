@@ -7,7 +7,7 @@ clear
 %- DONNEES FINANCIERES / FINANCIAL DATA
 %------------------------
 global  K r sigma T Smin Smax lambda mu gamma kappa
-K=100; sigma=0.2; r=0.1; T=1;  Smin=20; Smax=200; lambda = 0.0; mu = 0.0; gamma = 1.0; 
+K=100; sigma=0.15; r=0.05; T=1;  Smin=10; Smax=200; lambda = 0.1; mu = 0.0; gamma = 1.0; 
 
 kappa = exp(mu+gamma^2/2)-1; % JCD : expectancy of eta, which is log-normal
 
@@ -28,7 +28,7 @@ global I N p nMerton
 I=20; N=40; p = 10; nMerton = 10;
 %I=2*10; N=I*I/10; 
 
-SCHEMA='EE'; 		%- 'EE' or 'EI' or 'CN' 
+SCHEMA='CN'; 		%- 'EE' or 'EI' or 'CN' 
 CENTRAGE='CENTRE'; 	%- 'CENTRE', 'DROIT', 'GAUCHE' 
 
 %- Parameters for the graphics:
@@ -82,7 +82,7 @@ case 'CENTRE';  %- CENTERED APPROXIMATION
   G=zeros(I,I);
   %FILL the values of A(i,i), A(i,i-1), A(i,i+1)
   alpha=sigma^2/2/h^2;
-  bet=(r-lambda*kappa+sigma^2/2)/h;
+  bet=(r-lambda*kappa-sigma^2/2)/h;
   for i=1:I;   A(i,i) = 2*alpha + r + lambda; end;
   for i=2:I;   A(i,i-1) = -alpha + bet/2; end;
   for i=1:I-1; A(i,i+1) = -alpha - bet/2; end;

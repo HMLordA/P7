@@ -89,6 +89,8 @@ public:
     // Surcharge de l'opérateur: Simulation d'une variable gaussienne
     double operator()();
     
+    void setSigma(double sig);
+    
 private:
     double mu, sigma;
 };

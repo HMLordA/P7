@@ -17,6 +17,7 @@ sgraph=[Smin;s;Smax];
 Pgraph=  [ul(t);P;  ur(t)];
 Pexgraph=[ul(t);Pex;ur(t)];
 PexgraphBS=[ul(t);PexBS;ur(t)];
+PexgraphError=[ul(t);Pex-PexBS;ur(t)];
 
 plot(sgraph,Pexgraph,'black.-'); hold on; %exact
 plot(sgraph,PexgraphBS,'green.-'); hold on; %exact

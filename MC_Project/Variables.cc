@@ -51,6 +51,12 @@ double Gaussian::operator()() {
     
 }
 
+void Gaussian::setSigma(double sig){
+    
+    sigma=sig;
+    
+}
+
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@___GAUSSIAN___@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
