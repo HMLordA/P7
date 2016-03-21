@@ -11,7 +11,7 @@
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@___BROWNIAN___@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 // constructeur va construire le processus de taille 2^n + 1, et de pas de temps T/2^n
-Brownian::Brownian(int n, double T): Processus<double>(pow(2,n)+1), n(n), T(T), h(T/pow(2., n)), G(0,sqrt(h)) {}
+Brownian::Brownian(int n, double T): Processus<double>(pow(2.0,n)+1), n(n), T(T), h(T/pow(2., n)), G(0,sqrt(h)) {}
 
 // genere une nouvelle liste présentant notre Mouvement Brownien
 // procède par incrementation

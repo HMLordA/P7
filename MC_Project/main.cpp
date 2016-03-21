@@ -128,7 +128,7 @@ int main(int argc, const char * argv[]) {
     double vol=0.2;
     double r=0.05;
     
-    int M=10000;
+    int M=100;
     int n = 5;
     double alpha=0.950001;
     

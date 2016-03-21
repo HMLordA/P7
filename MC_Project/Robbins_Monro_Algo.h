@@ -132,7 +132,7 @@ public:
         
         double theta=0.0;
         
-        for(int j = 0; j < getTh().size(); j++){
+        for(unsigned int j = 0; j < getTh().size(); j++){
             
             theta += getTh()[j] * boost::math::legendre_p(j, 2*t-1);
         }
@@ -216,7 +216,7 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
     double g;
     vector<U> gaussian;
     
-    for(int j=0; j<theta.getTh().size(); j++){
+    for(unsigned int j=0; j<theta.getTh().size(); j++){
         
         gaussian.push_back(U(0.0,integral(0.0, 1.0, j, 0.01,legendreCarre)));
         
@@ -230,7 +230,7 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
         EDS2();
         
         // Mise a jour des thetas
-        for(int i=0; i<theta.getTh().size(); i++){
+        for(unsigned int i=0; i<theta.getTh().size(); i++){
             
             g = gaussian[i]();
             
