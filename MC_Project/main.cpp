@@ -122,28 +122,28 @@ double xxx(int l, double x){
 int main(int argc, const char * argv[]) {
     
     double S=100.0;
-    double K=100.0;
-    double L=97.0;
+    double K=115.0;
+    double L=65.0;
     double T=1.0;
-    double vol=0.2;
-    double r=0.05;
+    double vol=0.7;
+    double r=0.04;
     
-    int M=10000;
-    int n = 5;
-    double alpha=0.950001;
+    int M=100000;
+    int n = 4;
+    double alpha=0.50001;
     
-    double gamma0=1.0;
+    double gamma0=0.00001;
     double c=1.0;
     
     vector<double> theta;
     for(int i=0; i<4; i++){
-        theta.push_back(0.0);
+        theta.push_back(0.002);
     }
     
     Theta_Legendre thetaL(theta);
     
     Gaussian G(0.0,1.0);
-    
+ 
     Black_scholes BS(n, S, r, vol, T);
     BS();
     BS_Drift_t<Theta_Legendre> BS_Drift(n, S, r, vol, thetaL, T);
@@ -153,7 +153,7 @@ int main(int argc, const char * argv[]) {
     
     Robbins_Monro_SDE_Algo<Robbins_Monro_CallDownIn, BS_Drift_t<Theta_Legendre>, Black_scholes, Gaussian, &Robbins_Monro_CallDownIn::Payoff_Call>(M, alpha, gamma0, thetaL, c, rmbCID, BS_Drift, BS, G);
 
-    /*
+ /*
      std::list<std::pair<double,double>> i = BS.current();
      std::cout << i.size() << std::endl;
      
@@ -171,7 +171,7 @@ int main(int argc, const char * argv[]) {
      {
      std::cout << (*m).first << "     " << (*m).second << std::endl;
      }
-     */
+  */
     
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 

@@ -115,6 +115,11 @@ public:
         theta_i[i] = theti;
     }
     
+    double getTheta_i(int i){
+        
+        return theta_i[i];
+    }
+    
 private:
     vector<double> theta_i;
 
@@ -224,11 +229,13 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
     
     for (int n=0; n<M; ++n){
         
-        EDS1.setNewTheta(theta);
+        //EDS1.setNewTheta(theta);
         
         EDS1();
         EDS2();
         
+        //cout<< theta.getTheta_i(0) << endl;
+        /*
         // Mise a jour des thetas
         for(int i=0; i<theta.getTh().size(); i++){
             
@@ -237,6 +244,7 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
             theta.setTheta_i( i, theta.getTh()[i] - (gamma0/(pow(n+1,alpha)+0.0001)) * ( pow((Obj.*F_Payoff)(EDS1.current()),2)*( 2*theta.getTh()[i] - g ) ) );
             
         }
+        */
         //_______________________
         
         S1 += (Obj.*F_Payoff)(EDS1.current());

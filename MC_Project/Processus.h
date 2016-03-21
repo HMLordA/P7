@@ -177,7 +177,7 @@ private:
         Fun_bs(double x0, double r, double s, S& thet):x0(x0), s(s), mu(r-0.5*s*s), theta(thet) {}
         
         state operator()(const state & x){
-            
+            ///std::cout << theta.value(x.first) <<std::endl;
             return state(x.first, x0*exp((mu-theta.value(x.first))*x.first + s*x.second));
         
         }
