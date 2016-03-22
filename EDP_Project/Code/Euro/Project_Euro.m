@@ -28,7 +28,7 @@ global I N p nMerton
 I=20; N=40; p = 10; nMerton = 10;
 %I=2*10; N=I*I/10; 
 
-SCHEMA='CN'; 		%- 'EE' or 'EI' or 'CN' 
+SCHEMA='CN-AMER-UL'; 		%- 'EE' or 'EI' or 'CN' or 'CN-AMER-UL' or 'CN-AMER-NEWTON'
 CENTRAGE='CENTRE'; 	%- 'CENTRE', 'DROIT', 'GAUCHE' 
 
 %- Parameters for the graphics:
@@ -175,9 +175,40 @@ for n=0:N-1
           Tud1 = Tud(t+dt);
           P = (Id+dt/2*(A-h*lambda*G)) \ ( (Id - dt/2*(A-h*lambda*G)) * P - dt/2*((q0+q1+Tug0+Tug1+Tud0+Tud1)));
 
-
-  otherwise
-    fprintf('SCHEMA not programmed'); abort;
+      case 'CN-AMER-UL';
+          if n==0
+              B=Id+0.5*dt*(A+G); [U,L]=uldecomp_sol(B);
+              fprintf('Verification: norm(B-UL)=%10.5f\n', norm(B-U*L));
+          end
+          %- pb: min(Bx-b,x-g)=0, b=Pold-dt*q(t1), g=P0(s);
+          % COMPLETE:
+          t1=t+dt;
+          Pold=P-dt*q(t1);
+          b=(Id-0.5*dt*(A+G))*P-0.5*dt*(q(t1)+q(t)+Tug(t)+Tug(t1)+Tud(t)+Tud(t1));
+          c=montee(U,b);
+          P=descente_p(L,c,P0(s));
+          
+          %- Verification:
+          err=norm(min(B*P-Pold,P-P0(s)));
+          fprintf('Verification: err=%10.5f\n',err);
+          
+      case 'CN-AMER-NEWTON';
+          if (n==0); B=Id+0.5*dt*(A+G); end;
+          %- pb: min(Bx-b,x-g)=0, b=P, g=P0(s);
+          % COMPLETE
+          t1=t+dt;
+          Pold=P-dt*q(t1); %TODO: check why not in tp2
+          b=(Id-0.5*dt*(A+G))*P-0.5*dt*(q(t1)+q(t)+Tug(t)+Tug(t1)+Tud(t)+Tud(t1));
+          
+          x0=P; gfinal=P0(s); eps=1e-10; kmax=50; %TODO : check value for x0 (coherent with b ?)
+          % g is already a function name
+          [P,k]=newton_sol(B,b,gfinal,x0,eps,kmax);
+          %- Verification
+          err=norm(min(B*P-Pold,P-P0(s)));
+          fprintf('Verif: err=%10.5f\n',err);
+    
+      otherwise
+          fprintf('SCHEMA not programmed'); abort;
 
   end
 
