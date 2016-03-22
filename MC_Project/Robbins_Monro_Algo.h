@@ -154,6 +154,9 @@ Vector Robbins_Monro_Algo(int M, double alpha, double gamma0, Vector theta, doub
     Vector g;
     double Sreal1=0.0;
     double Sreal2=0.0;
+	double Sreal1Drift=0.0;
+    double Sreal2Drift=0.0;
+	double thetaDrift = 1.6;
 //    double Sth1=0.0;
 //    double Sth2=0.0;
 //    double th=2.1963;
@@ -181,25 +184,55 @@ Vector Robbins_Monro_Algo(int M, double alpha, double gamma0, Vector theta, doub
 */
         Sreal1 += (Obj.*F_Payoff)(g);
         Sreal2 += pow((Obj.*F_Payoff)(g),2);
+
+		Vector v_thetaDrift = Vector(g.size(),thetaDrift);
+		Sreal1Drift += (Obj.*F_Payoff)(g+v_thetaDrift)*exp(inner_prod(-v_thetaDrift,g) - 0.5 * inner_prod(v_thetaDrift,v_thetaDrift));
+        Sreal2Drift += pow((Obj.*F_Payoff)(g+v_thetaDrift)*exp(inner_prod(-v_thetaDrift,g) - 0.5 * inner_prod(v_thetaDrift,v_thetaDrift)),2);
         
     }
     
     cout <<"Le theta optimal : "<< theta << endl;
     
-    cout <<"L'esperance simple : "<< exp(-Obj.r*Obj.T) * Sreal1/M << endl;
+	double meanSimple = exp(-Obj.r*Obj.T) * Sreal1/M;
+	double meanDrift = exp(-Obj.r*Obj.T) * Sreal1Drift/M;
+	double meanChanged = exp(-Obj.r*Obj.T) * S1/M;
+	double meanSqSimple = exp(-2*Obj.r*Obj.T)*Sreal2/M;
+	double meanSqDrift = exp(-2*Obj.r*Obj.T)*Sreal2Drift/M;
+	double varSimple = meanSqSimple-exp(-2*Obj.r*Obj.T)*pow(Sreal1/M,2);
+	double varDrift = meanSqDrift-exp(-2*Obj.r*Obj.T)*pow(Sreal1Drift/M,2);
+	double meanSqChanged = exp(-2*Obj.r*Obj.T)*S2/M;
+	double varChanged = meanSqChanged-exp(-2*Obj.r*Obj.T)*pow(S1/M,2);  
+    
+	//cout <<"L'esperance simple : "<< exp(-Obj.r*Obj.T) * Sreal1/M << endl;
+	cout <<"L'esperance simple : "<< meanSimple << endl;
+	cout <<"L'esperance simple avec drift "<<thetaDrift<<" : "<< meanDrift << endl;
 //    cout <<"Vrai Prix Call : "<< Call_Price(Obj.S0,Obj.T,Obj.vol,Obj.r,Obj.K) << endl;
-    cout <<"L'esperence avec changement : "<< exp(-Obj.r*Obj.T) * S1/M << endl;
+    //cout <<"L'esperence avec changement : "<< exp(-Obj.r*Obj.T) * S1/M << endl;
+    cout <<"L'esperence avec changement : "<< meanChanged << endl;
 //    cout <<"L'esperence avec changement thhhh: "<< exp(-Obj.r*Obj.T) * Sth1/M << endl;
     
-    cout <<"L'esperance du carre simple : "<< S2/M << endl;
-    cout <<"L'esperance du carre avec changement : "<< Sreal2/M << endl;
+    //cout <<"L'esperance du carre simple : "<< S2/M << endl;
+    //cout <<"L'esperance du carre avec changement : "<< Sreal2/M << endl;
+	cout <<"L'esperance du carre simple : "<< meanSqSimple << endl;
+	cout <<"L'esperance du carre avec drift : "<< meanSqDrift << endl;
+    cout <<"L'esperance du carre avec changement : "<< meanSqChanged << endl;
     
     // double variance = 1.0/(M-1)*(Sreal2-M*(Sreal1/M)*(Sreal1/M));
     // cout <<"La variance : "<< variance << endl;
     
-    cout <<"La variance simple : "<< Sreal2/M-pow(Sreal1/M,2) << endl;
-    cout <<"La variance avec changement : "<< S2/M-pow(S1/M,2) << endl;
+    //cout <<"La variance simple : "<< Sreal2/M-pow(Sreal1/M,2) << endl;
+    //cout <<"La variance avec changement : "<< S2/M-pow(S1/M,2) << endl;
+    cout <<"La variance simple : "<< varSimple << endl;
+	cout <<"La variance avec drift : "<< varDrift << endl;
+    cout <<"La variance avec changement : "<< varChanged << endl;
+
 //    cout <<"La variance avec changement thhhh: "<< Sth2/M-pow(Sth1/M,2) << endl;
+	cout<<"Intervalle de confiance pour le prix simple:";
+    cout<<"["<<meanSimple-1.96*sqrt(varSimple/M)<<";"<<meanSimple+1.96*sqrt(varSimple/M)<<"]"<<endl;
+	cout<<"Intervalle de confiance pour le prix avec drift:";
+    cout<<"["<<meanDrift-1.96*sqrt(varDrift/M)<<";"<<meanDrift+1.96*sqrt(varDrift/M)<<"]"<<endl;
+	cout<<"Intervalle de confiance pour le prix avec changement:";
+    cout<<"["<<meanChanged-1.96*sqrt(varChanged/M)<<";"<<meanChanged+1.96*sqrt(varChanged/M)<<"]"<<endl;
     
     return theta;
 

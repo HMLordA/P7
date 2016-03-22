@@ -130,12 +130,12 @@ int main(int argc, const char * argv[]) {
 	const int NB_ASSETS = 1;
 
     
-    int M=10000000;
+    int M=100000000;
     int n = 0;
     double alpha=0.8001;
     
-    double gamma0=0.00001;
-	//double gamma0 = 1.0;
+    //double gamma0=0.00001;
+	double gamma0 = 1.0;
     double c=1.0;
     
     vector<double> theta;
@@ -167,7 +167,7 @@ int main(int argc, const char * argv[]) {
         m (i, i) = 1;
     }
 	//Vector thetaOld(NB_ASSETS,0);
-	Vector thetaOld(NB_ASSETS,1.6);
+	Vector thetaOld(NB_ASSETS,0.0);
     double cOld=1.0;
 
 	Vector v(NB_ASSETS,0);
