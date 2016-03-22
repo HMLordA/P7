@@ -169,6 +169,7 @@ Vector Robbins_Monro_Algo(int M, double alpha, double gamma0, Vector theta, doub
 			else
 				counter += M/100;
 		}
+		//JCD : to uncomment
 		Vector d_theta = ((gamma0/pow(n+1,alpha))) * (2*theta - g) * (pow((Obj.*F_Payoff)(g-theta),2)/(1+pow((Obj.*F_Tilda_Control)(-theta),2 * c)));
         theta = theta - d_theta;
 
@@ -227,15 +228,24 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
         
     }
     
+	int counter = 0;
+
     for (int n=0; n<M; ++n){
         
-        //EDS1.setNewTheta(theta);
+        EDS1.setNewTheta(theta);
         
         EDS1();
         EDS2();
-        
+		if (n == counter)
+		{
+			cout <<"Theta at "<<n<<" : " <<theta.getTheta_i(0)<<endl;
+			/*if (n < 100)
+				counter+=1;
+			else*/
+				counter += M/100;
+		}
         //cout<< theta.getTheta_i(0) << endl;
-        /*
+        
         // Mise a jour des thetas
         for(unsigned int i=0; i<theta.getTh().size(); i++){
             
@@ -244,7 +254,7 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
             theta.setTheta_i( i, theta.getTh()[i] - (gamma0/(pow(n+1,alpha)+0.0001)) * ( pow((Obj.*F_Payoff)(EDS1.current()),2)*( 2*theta.getTh()[i] - g ) ) );
             
         }
-        */
+        
         //_______________________
         
         S1 += (Obj.*F_Payoff)(EDS1.current());
@@ -255,14 +265,25 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
         
     }
     
-    cout <<"L'esperance simple : "<< exp(-Obj.r*Obj.T) * Sreal1/M << endl;
-    cout <<"L'esperence avec changement : "<< exp(-Obj.r*Obj.T) * S1/M << endl;
+
+	double meanSimple = exp(-Obj.r*Obj.T) * Sreal1/M;
+	double meanChanged = exp(-Obj.r*Obj.T) * S1/M;
+	double meanSqSimple = exp(-2*Obj.r*Obj.T)*Sreal2/M;
+	double varSimple = meanSqSimple-exp(-2*Obj.r*Obj.T)*pow(Sreal1/M,2);
+	double meanSqChanged = exp(-2*Obj.r*Obj.T)*S2/M;
+	double varChanged = meanSqChanged-exp(-2*Obj.r*Obj.T)*pow(S1/M,2);  
+	
+	cout <<"L'esperance simple : "<< meanSimple << endl;
+    cout <<"L'esperence avec changement : "<< meanChanged << endl;
+    cout <<"L'esperance du carre simple : "<< meanSqSimple << endl;
+    cout <<"L'esperance du carre avec changement : "<< meanSqChanged << endl;
     
-    cout <<"L'esperance du carre simple : "<< Sreal2/M << endl;
-    cout <<"L'esperance du carre avec changement : "<< S2/M << endl;
-    
-    cout <<"La variance simple : "<< Sreal2/M-pow(Sreal1/M,2) << endl;
-    cout <<"La variance avec changement : "<< S2/M-pow(S1/M,2) << endl;
+    cout <<"La variance simple : "<< varSimple << endl;
+    cout <<"La variance avec changement : "<< varChanged << endl;
+	cout<<"Intervalle de confiance pour le prix simple:";
+    cout<<"["<<meanSimple-1.96*sqrt(varSimple/M)<<";"<<meanSimple+1.96*sqrt(varSimple/M)<<"]"<<endl;
+	cout<<"Intervalle de confiance pour le prix avec changement:";
+    cout<<"["<<meanChanged-1.96*sqrt(varChanged/M)<<";"<<meanChanged+1.96*sqrt(varChanged/M)<<"]"<<endl;
     
 }
 

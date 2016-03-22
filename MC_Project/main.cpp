@@ -12,10 +12,10 @@
 #include "Robbins_Monro_Call.h"
 #include "Robbins_Monro_BestOfCall.h"
 #include "Robbins_Monro_CallDownIn.h"
+#include "Robbins_Monro_Call_EDS.h"
 #include "Robbins_Monro_Algo.h"
 #include "Robbins_Monro_Algo_Normal_Distrib.h"
 #include "Processus.h"
-
 
 using namespace std;
 /*
@@ -127,20 +127,21 @@ int main(int argc, const char * argv[]) {
     double T=1.0;
     double vol=0.7;
     double r=0.04;
+	const int NB_ASSETS = 1;
+
     
-    int M=100;
-    int n = 5;
-    double alpha=0.950001;
-    int M=100000;
-    int n = 4;
-    double alpha=0.50001;
+    int M=10000000;
+    int n = 0;
+    double alpha=0.8001;
     
     double gamma0=0.00001;
+	//double gamma0 = 1.0;
     double c=1.0;
     
     vector<double> theta;
-    for(int i=0; i<4; i++){
-        theta.push_back(0.002);
+    for(int i=0; i<1; i++){
+       // theta.push_back(0.02);
+		theta.push_back(atof(argv[1]));
     }
     
     Theta_Legendre thetaL(theta);
@@ -152,9 +153,36 @@ int main(int argc, const char * argv[]) {
     BS_Drift_t<Theta_Legendre> BS_Drift(n, S, r, vol, thetaL, T);
     BS_Drift();
 
-    Robbins_Monro_CallDownIn rmbCID(S, T, vol, r, L, K);
+
+    //Robbins_Monro_CallDownIn rmbCID(S, T, vol, r, L, K);    
+    //Robbins_Monro_SDE_Algo<Robbins_Monro_CallDownIn, BS_Drift_t<Theta_Legendre>, Black_scholes, Gaussian, &Robbins_Monro_CallDownIn::Payoff_Call>(M, alpha, gamma0, thetaL, c, rmbCID, BS_Drift, BS, G);
+	
+	Robbins_Monro_Call_EDS rmbCID(S, T, vol, r, K);  
+	Robbins_Monro_SDE_Algo<Robbins_Monro_Call_EDS, BS_Drift_t<Theta_Legendre>, Black_scholes, Gaussian, &Robbins_Monro_Call_EDS::Payoff_Call>(M, alpha, gamma0, thetaL, c, rmbCID, BS_Drift, BS, G);
+	
+
+	//Old call
+	/*Matrix m(NB_ASSETS,NB_ASSETS,0);
+    for (unsigned i = 0; i < m.size1 (); ++ i){
+        m (i, i) = 1;
+    }
+	//Vector thetaOld(NB_ASSETS,0);
+	Vector thetaOld(NB_ASSETS,1.6);
+    double cOld=1.0;
+
+	Vector v(NB_ASSETS,0);
     
-    Robbins_Monro_SDE_Algo<Robbins_Monro_CallDownIn, BS_Drift_t<Theta_Legendre>, Black_scholes, Gaussian, &Robbins_Monro_CallDownIn::Payoff_Call>(M, alpha, gamma0, thetaL, c, rmbCID, BS_Drift, BS, G);
+    Robbins_Monro_Call rmc(S, K, T, vol, r);
+	//Robbins_Monro_Call rmc(S01,K,T,vol1,r);
+    Gaussian_Vector GOld(v,m,NB_ASSETS);
+
+
+    //Vector thet = Robbins_Monro_Algo<Robbins_Monro_Call, Gaussian_Vector, &Robbins_Monro_BestOfCall::Payoff_BestOfCall, &Robbins_Monro_BestOfCall::StockBS_BestOfCall>(M, alpha, gamma0, theta, c, rmb, G);
+    Vector thet = Robbins_Monro_Algo<Robbins_Monro_Call, Gaussian_Vector, &Robbins_Monro_Call::Payoff_Call, &Robbins_Monro_Call::StockBS>(M, alpha, gamma0, thetaOld, cOld, rmc, GOld);
+    //Vector thet = Robbins_Monro_Algo_Normal_Distrib<Robbins_Monro_Call, Gaussian_Vector, &Robbins_Monro_Call::Payoff_Call>(M, alpha, gamma0, theta, c, rmc, G);
+	*/
+
+
 
  /*
      std::list<std::pair<double,double>> i = BS.current();

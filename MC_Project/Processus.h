@@ -178,7 +178,8 @@ private:
         
         state operator()(const state & x){
             ///std::cout << theta.value(x.first) <<std::endl;
-            return state(x.first, x0*exp((mu-theta.value(x.first))*x.first + s*x.second));
+			//JCD : add of the s before theta (vol was missing)
+            return state(x.first, x0*exp((mu-s*theta.value(x.first))*x.first + s*x.second));
         
         }
         
