@@ -153,15 +153,24 @@ class BS_Drift_t: public Brownian {
     
 public:
     
-    BS_Drift_t(int n, double x0, double r, double s, S& theta, double T=1): Brownian(n, T), bs(x0, r, s, theta) {}
+    BS_Drift_t(int n, double x0, double r, double s, S& theta, double T=1): Brownian(n, T), bs(x0, r, s, theta), value_BS_Drift(value) {}
     
     result_type operator()(){
         
         Brownian::operator()();
-        std::transform(value.begin(), value.end(), value.begin(), bs);
-        return value;
+        std::transform(value.begin(), value.end(), value_BS_Drift.begin(), bs);
+        return value_BS_Drift;
     
     }
+    
+    result_type rediffusion(){
+    
+        std::transform(value.begin(), value.end(), value_BS_Drift.begin(), bs);
+        return value_BS_Drift;
+    }
+    
+    result_type current_BS_Drift() const { return value_BS_Drift; }
+    
     
     void setNewTheta(S& thet){
     
@@ -194,6 +203,8 @@ private:
         S theta;
         
     } bs;
+    
+    result_type value_BS_Drift;
 
 public:
     

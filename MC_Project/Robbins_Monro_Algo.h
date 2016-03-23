@@ -50,7 +50,7 @@ double Call_Price(double S0, double T, double vol, double r, double K){
 
 // Integration de fonctions algo trouvé sur BOOST!!!
 template<typename value_type, typename function_type>
-inline value_type integral(const value_type a,
+inline value_type integral2P(const value_type a,
                            const value_type b,
                            const int l,
                            const value_type tol,
@@ -69,6 +69,46 @@ inline value_type integral(const value_type a,
         for(unsigned j = 1U; j <= n; j++)
         {
             sum += func(l,a + (value_type((j * 2) - 1) * h));
+        }
+        
+        const value_type I0 = I;
+        I = (I / 2) + (h * sum);
+        
+        const value_type ratio     = I0 / I;
+        const value_type delta     = ratio - 1;
+        const value_type delta_abs = ((delta < 0) ? -delta : delta);
+        
+        if((k > 1U) && (delta_abs < tol))
+        {
+            break;
+        }
+        
+        n *= 2U;
+    }
+    
+    return I;
+}
+
+// Integration de fonctions algo trouvé sur BOOST!!!
+template<typename value_type, typename function_type>
+inline value_type integral1P(const value_type a,
+                             const value_type b,
+                             const value_type tol,
+                             function_type func)
+{
+    unsigned n = 1U;
+    
+    value_type h = (b - a);
+    value_type I = (func(a) + func(b)) * (h / 2);
+    
+    for(unsigned k = 0U; k < 8U; k++)
+    {
+        h /= 2;
+        
+        value_type sum(0);
+        for(unsigned j = 1U; j <= n; j++)
+        {
+            sum += func(a + (value_type((j * 2) - 1) * h));
         }
         
         const value_type I0 = I;
@@ -252,12 +292,15 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
     double S2=0.0;
     double Sreal1=0.0;
     double Sreal2=0.0;
+    double sum_theta;
     double g;
     vector<U> gaussian;
+    U norm();
+    Theta_Legendre plusTheta(theta);
     
     for(unsigned int j=0; j<theta.getTh().size(); j++){
         
-        gaussian.push_back(U(0.0,integral(0.0, 1.0, j, 0.01,legendreCarre)));
+        gaussian.push_back(U(0.0,integral2P(0.0, 1.0, j, 0.01,legendreCarre)));
         
     }
     
@@ -284,14 +327,28 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
             
             g = gaussian[i]();
             
-            theta.setTheta_i( i, theta.getTh()[i] - (gamma0/(pow(n+1,alpha)+0.0001)) * ( pow((Obj.*F_Payoff)(EDS1.current()),2)*( 2*theta.getTh()[i] - g ) ) );
+            theta.setTheta_i( i, theta.getTh()[i] - (gamma0/(pow(n+1,alpha)+0.0001)) * ( pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()),2)*( 2*theta.getTh()[i] - g ) ) );
+            
+            plusTheta.setTheta_i(i,-theta.getTheta_i(i));
             
         }
         
         //_______________________
+        // + theta dans la diffusion
+        EDS1.setNewTheta(plusTheta);
+        EDS1.rediffusion();
         
-        S1 += (Obj.*F_Payoff)(EDS1.current());
-        S2 += pow((Obj.*F_Payoff)(EDS1.current()),2);
+        for (int th : theta.getTh()){
+            sum_theta += pow(th,2);
+        }
+        
+        // INTEGRALE COMMME VARIANCE DE Norm
+        // Integrale 2P c'est avec 2 parametres int et double
+        // Integrale 1P c'est avec un parametre double
+        //norm.setSigma(integral1P(0.0, 1.0, 0.01,&Theta));
+        
+        S1 += (Obj.*F_Payoff)(EDS1.current_BS_Drift()) * exp (-(sum_theta/2));
+        S2 += pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()),2);
         
         Sreal1 += (Obj.*F_Payoff)(EDS2.current());
         Sreal2 += pow((Obj.*F_Payoff)(EDS2.current()),2);

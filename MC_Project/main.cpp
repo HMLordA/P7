@@ -122,26 +122,26 @@ double xxx(int l, double x){
 int main(int argc, const char * argv[]) {
     
     double S=100.0;
-    double K=115.0;
-    double L=65.0;
+    double K=100.0;
+    double L=97.0;
     double T=1.0;
-    double vol=0.7;
+    double vol=0.2;
     double r=0.04;
 	const int NB_ASSETS = 1;
 
     
-    int M=100000000;
-    int n = 0;
+    int M=100000;
+    int n = 5;
     double alpha=0.8001;
     
-    //double gamma0=0.00001;
-	double gamma0 = 1.0;
+    double gamma0=0.00001;
+	//double gamma0 = 1.0;
     double c=1.0;
     
     vector<double> theta;
     for(int i=0; i<1; i++){
-       // theta.push_back(0.02);
-		theta.push_back(atof(argv[1]));
+        theta.push_back(0.02);
+		//theta.push_back(atof(argv[1]));
     }
     
     Theta_Legendre thetaL(theta);
@@ -153,13 +153,12 @@ int main(int argc, const char * argv[]) {
     BS_Drift_t<Theta_Legendre> BS_Drift(n, S, r, vol, thetaL, T);
     BS_Drift();
 
-
-    //Robbins_Monro_CallDownIn rmbCID(S, T, vol, r, L, K);    
-    //Robbins_Monro_SDE_Algo<Robbins_Monro_CallDownIn, BS_Drift_t<Theta_Legendre>, Black_scholes, Gaussian, &Robbins_Monro_CallDownIn::Payoff_Call>(M, alpha, gamma0, thetaL, c, rmbCID, BS_Drift, BS, G);
+    
+    Robbins_Monro_CallDownIn rmbCID(S, T, vol, r, L, K);
+    Robbins_Monro_SDE_Algo<Robbins_Monro_CallDownIn, BS_Drift_t<Theta_Legendre>, Black_scholes, Gaussian, &Robbins_Monro_CallDownIn::Payoff_Call>(M, alpha, gamma0, thetaL, c, rmbCID, BS_Drift, BS, G);
 	
-	Robbins_Monro_Call_EDS rmbCID(S, T, vol, r, K);  
-	Robbins_Monro_SDE_Algo<Robbins_Monro_Call_EDS, BS_Drift_t<Theta_Legendre>, Black_scholes, Gaussian, &Robbins_Monro_Call_EDS::Payoff_Call>(M, alpha, gamma0, thetaL, c, rmbCID, BS_Drift, BS, G);
-	
+	//Robbins_Monro_Call_EDS rmbCID(S, T, vol, r, K);
+	//Robbins_Monro_SDE_Algo<Robbins_Monro_Call_EDS, BS_Drift_t<Theta_Legendre>, Black_scholes, Gaussian, &Robbins_Monro_Call_EDS::Payoff_Call>(M, alpha, gamma0, thetaL, c, rmbCID, BS_Drift, BS, G);
 
 	//Old call
 	/*Matrix m(NB_ASSETS,NB_ASSETS,0);
@@ -194,14 +193,45 @@ int main(int argc, const char * argv[]) {
      std::cout << (*j).first << "     " << (*j).second << std::endl;
      }
      
-     std::list<std::pair<double,double>> p = BS_Drift.current();
-     std::cout << p.size() << std::endl;
-     
-     std::list<std::pair<double,double>>::iterator m;
-     for(m=p.begin(); m != p.end(); ++m)
-     {
-     std::cout << (*m).first << "     " << (*m).second << std::endl;
-     }
+  std::list<std::pair<double,double>> p = BS_Drift.current_BS_Drift();
+  std::cout << p.size() << std::endl;
+  
+  std::list<std::pair<double,double>>::iterator m;
+  for(m=p.begin(); m != p.end(); ++m)
+  {
+  std::cout << (*m).first << "     " << (*m).second << std::endl;
+  }
+  
+  std::list<std::pair<double,double>> o = BS_Drift.current();
+  std::cout << o.size() << std::endl;
+  
+  std::list<std::pair<double,double>>::iterator y;
+  for(y=o.begin(); y != o.end(); ++y)
+  {
+  std::cout << (*y).first << "     " << (*y).second << std::endl;
+  }
+  
+  thetaL.setTheta_i(0, 0.9);
+  BS_Drift.setNewTheta(thetaL);
+  BS_Drift.rediffusion();
+  
+  std::list<std::pair<double,double>> pp = BS_Drift.current_BS_Drift();
+  std::cout << pp.size() << std::endl;
+  
+  std::list<std::pair<double,double>>::iterator mm;
+  for(mm=pp.begin(); mm != pp.end(); ++mm)
+  {
+  std::cout << (*mm).first << "     " << (*mm).second << std::endl;
+  }
+  
+  std::list<std::pair<double,double>> oo = BS_Drift.current();
+  std::cout << oo.size() << std::endl;
+  
+  std::list<std::pair<double,double>>::iterator yy;
+  for(yy=oo.begin(); yy != oo.end(); ++yy)
+  {
+  std::cout << (*yy).first << "     " << (*yy).second << std::endl;
+  }
   */
     
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
