@@ -15,6 +15,7 @@
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/math/special_functions/erf.hpp>
 #include <vector>
+#include <list>
 
 #include "Variables.h"
 
@@ -26,7 +27,62 @@ typedef boost::numeric::ublas::vector<double> Vector;
 
 using namespace std;
 
-class Theta;
+class Theta{
+    
+public:
+    Theta(){}
+    Theta(vector<double> & thet): theta_i(thet){}
+    
+    virtual double value(double t) const =0;
+    
+    // Getter
+    vector<double> getTh() const{
+        
+        return theta_i;
+        
+    }
+    
+    // Setter
+    void setTh(vector<double> & theta){
+        
+        theta_i = theta;
+    }
+    
+    void setTheta_i(int i, double theti){
+        
+        theta_i[i] = theti;
+    }
+    
+    double getTheta_i(int i){
+        
+        return theta_i[i];
+    }
+    
+private:
+    vector<double> theta_i;
+    
+};
+
+class Theta_Legendre: public Theta{
+    
+public:
+    
+    Theta_Legendre(){}
+    
+    Theta_Legendre(vector<double> & thet){ setTh(thet); }
+    
+    double value(double t) const override {
+        
+        double theta=0.0;
+        
+        for(unsigned int j = 0; j < getTh().size(); j++){
+            
+            theta += getTh()[j] * boost::math::legendre_p(j, 2*t-1);
+        }
+        return theta;
+    }
+    
+};
 //class Gaussian;
 
 double N(double d){
@@ -133,63 +189,6 @@ inline value_type integral1P(const value_type a,
     
     return I;
 }
-
-class Theta{
-    
-public:
-    Theta(){}
-    Theta(vector<double> & thet): theta_i(thet){}
-    
-    virtual double value(double t) const =0;
-
-    // Getter
-    vector<double> getTh() const{
-        
-        return theta_i;
-    
-    }
-    
-    // Setter
-    void setTh(vector<double> & theta){
-    
-        theta_i = theta;
-    }
-    
-    void setTheta_i(int i, double theti){
-        
-        theta_i[i] = theti;
-    }
-    
-    double getTheta_i(int i){
-        
-        return theta_i[i];
-    }
-    
-private:
-    vector<double> theta_i;
-
-};
-
-class Theta_Legendre: public Theta{
-
-public:
-    
-    Theta_Legendre(){}
-    
-    Theta_Legendre(vector<double> & thet){ setTh(thet); }
-    
-    double value(double t) const override {
-        
-        double theta=0.0;
-        
-        for(unsigned int j = 0; j < getTh().size(); j++){
-            
-            theta += getTh()[j] * boost::math::legendre_p(j, 2*t-1);
-        }
-        return theta;
-    }
-    
-};
 
 template<class T, class S, double (T::*F_Payoff)(const Vector &) const, double (T::*F_Tilda_Control)(const Vector &) const>
 Vector Robbins_Monro_Algo(int M, double alpha, double gamma0, Vector theta, double c, const T& Obj, S& G){
@@ -316,6 +315,9 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
         
         EDS1();
         EDS2();
+        
+        double gg = EDS1.current().back().second;
+        
 		if (n == counter)
 		{
 			cout <<"Theta at "<<n<<" : " <<mytheta.getTheta_i(0)<<endl;
@@ -337,7 +339,7 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
             
             g = gaussian[i]();
             
-            //mytheta.setTheta_i( i, mytheta.getTh()[i] - (gamma0/(pow(n+1,alpha)+0*0.0001)) * exp(sum_theta)*( pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()),2)*( 2*mytheta.getTh()[i] - g ) ) );
+            mytheta.setTheta_i( i, mytheta.getTh()[i] - (gamma0/(pow(n+1,alpha)+0*0.0001)) * exp(sum_theta)*( pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()),2)*( 2*mytheta.getTh()[i] - gg * sqrt(integral2P(0.0, 1.0, 0 , 0.01,legendreCarre)) ) ) );
             
             plusTheta.setTheta_i(i,-mytheta.getTheta_i(i));
             
@@ -357,19 +359,24 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
         //norm.setSigma(integral1P(0.0, 1.0, 0.01,&Theta));
 		//Gaussian mynor;
 		//mynor.setSigma(3.0);
+        
+        
 		mynorm.setSigma(sqrt(integral1P(0.0, 1.0, 0.01,mytheta)));
-		double mysigma = sqrt(integral1P(0.0, 1.0, 0.01,mytheta))/sqrt(integral2P(0.0, 1.0, 0, 0.01,legendreCarre));
+        double mysigma = sqrt(integral1P(0.0, 1.0, 0.01,mytheta));
+        ///sqrt(integral2P(0.0, 1.0, 0, 0.01,legendreCarre));
+        
+        //cout << (Obj.*F_Payoff)(EDS1.current_BS_Drift()) * exp (-(gg*mysigma + sum_theta/2)) << endl;
+        //cout << (Obj.*F_Payoff)(EDS2.current()) << endl;
         
         //S1 += (Obj.*F_Payoff)(EDS1.current_BS_Drift()) * exp (-(mynorm() + sum_theta/2));
-		S1 += (Obj.*F_Payoff)(EDS1.current_BS_Drift()) * exp (-(g*mysigma + sum_theta/2));
+		S1 += (Obj.*F_Payoff)(EDS1.current_BS_Drift()) * exp (-(gg*mysigma + sum_theta/2));
         //S2 += pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()),2);
-        S2 += pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()) * exp (-(g*mysigma + sum_theta/2)),2);
+        S2 += pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()) * exp (-(gg*mysigma + sum_theta/2)),2);
         
         Sreal1 += (Obj.*F_Payoff)(EDS2.current());
         Sreal2 += pow((Obj.*F_Payoff)(EDS2.current()),2);
         
     }
-    
 
 	double meanSimple = exp(-Obj.r*Obj.T) * Sreal1/M;
 	double meanChanged = exp(-Obj.r*Obj.T) * S1/M;

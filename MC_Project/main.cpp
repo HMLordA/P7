@@ -130,9 +130,9 @@ int main(int argc, const char * argv[]) {
 	const int NB_ASSETS = 1;
 
     
-    int M=1000000;
+    int M=10000000;
     int n = 0;
-    double alpha=0.5001;
+    double alpha=0.7501;
     
     double gamma0=0.001;
 
