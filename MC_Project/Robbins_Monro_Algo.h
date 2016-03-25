@@ -16,13 +16,18 @@
 #include <boost/math/special_functions/erf.hpp>
 #include <vector>
 
+#include "Variables.h"
+
 // Polynome Legendre
 #include <boost/math/special_functions/legendre.hpp>
 
-
 typedef boost::numeric::ublas::vector<double> Vector;
 
+
 using namespace std;
+
+class Theta;
+//class Gaussian;
 
 double N(double d){
     
@@ -90,16 +95,16 @@ inline value_type integral2P(const value_type a,
 }
 
 // Integration de fonctions algo trouvé sur BOOST!!!
-template<typename value_type, typename function_type>
+template<typename value_type>
 inline value_type integral1P(const value_type a,
                              const value_type b,
                              const value_type tol,
-                             function_type func)
+                             const Theta& th)
 {
     unsigned n = 1U;
     
     value_type h = (b - a);
-    value_type I = (func(a) + func(b)) * (h / 2);
+    value_type I = (pow(th.value(a),2.0) + pow(th.value(b),2.0)) * (h / 2);
     
     for(unsigned k = 0U; k < 8U; k++)
     {
@@ -108,7 +113,7 @@ inline value_type integral1P(const value_type a,
         value_type sum(0);
         for(unsigned j = 1U; j <= n; j++)
         {
-            sum += func(a + (value_type((j * 2) - 1) * h));
+			sum += pow(th.value(a + (value_type((j * 2) - 1) * h)),2.0);
         }
         
         const value_type I0 = I;
@@ -135,10 +140,10 @@ public:
     Theta(){}
     Theta(vector<double> & thet): theta_i(thet){}
     
-    virtual double value(double t)=0;
+    virtual double value(double t) const =0;
 
     // Getter
-    vector<double> getTh(){
+    vector<double> getTh() const{
         
         return theta_i;
     
@@ -173,7 +178,7 @@ public:
     
     Theta_Legendre(vector<double> & thet){ setTh(thet); }
     
-    double value(double t) override {
+    double value(double t) const override {
         
         double theta=0.0;
         
@@ -286,21 +291,20 @@ double legendreCarre(int l, double x){
 }
 
 template<class T, class S, class SS, class U, double (T::*F_Payoff)(const std::list<std::pair<double,double>> &) const>
-void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& theta, double c, const T& Obj, S& EDS1, SS& EDS2, U& G){
+void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& mytheta, double c, const T& Obj, S& EDS1, SS& EDS2, U& G){
     
     double S1=0.0;
     double S2=0.0;
     double Sreal1=0.0;
     double Sreal2=0.0;
-    double sum_theta;
     double g;
     vector<U> gaussian;
-    U norm();
-    Theta_Legendre plusTheta(theta);
+    U mynorm = U();
+    Theta_Legendre plusTheta(mytheta);
     
-    for(unsigned int j=0; j<theta.getTh().size(); j++){
+    for(unsigned int j=0; j<mytheta.getTh().size(); j++){
         
-        gaussian.push_back(U(0.0,integral2P(0.0, 1.0, j, 0.01,legendreCarre)));
+        gaussian.push_back(U(0.0,sqrt(integral2P(0.0, 1.0, j, 0.01,legendreCarre))));
         
     }
     
@@ -308,28 +312,34 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
 
     for (int n=0; n<M; ++n){
         
-        EDS1.setNewTheta(theta);
+        EDS1.setNewTheta(mytheta);
         
         EDS1();
         EDS2();
 		if (n == counter)
 		{
-			cout <<"Theta at "<<n<<" : " <<theta.getTheta_i(0)<<endl;
+			cout <<"Theta at "<<n<<" : " <<mytheta.getTheta_i(0)<<endl;
 			/*if (n < 100)
 				counter+=1;
 			else*/
 				counter += M/100;
 		}
         //cout<< theta.getTheta_i(0) << endl;
-        
+		
+		vector<double> thet = mytheta.getTh();
+		double sum_theta = 0.0;
+        for (auto th =thet.begin();th!=thet.end();th++){
+            sum_theta += pow(*th,2.0);
+        }
+
         // Mise a jour des thetas
-        for(unsigned int i=0; i<theta.getTh().size(); i++){
+        for(unsigned int i=0; i<mytheta.getTh().size(); i++){
             
             g = gaussian[i]();
             
-            theta.setTheta_i( i, theta.getTh()[i] - (gamma0/(pow(n+1,alpha)+0.0001)) * ( pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()),2)*( 2*theta.getTh()[i] - g ) ) );
+            //mytheta.setTheta_i( i, mytheta.getTh()[i] - (gamma0/(pow(n+1,alpha)+0*0.0001)) * exp(sum_theta)*( pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()),2)*( 2*mytheta.getTh()[i] - g ) ) );
             
-            plusTheta.setTheta_i(i,-theta.getTheta_i(i));
+            plusTheta.setTheta_i(i,-mytheta.getTheta_i(i));
             
         }
         
@@ -338,17 +348,22 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
         EDS1.setNewTheta(plusTheta);
         EDS1.rediffusion();
         
-        for (int th : theta.getTh()){
-            sum_theta += pow(th,2);
-        }
+
         
         // INTEGRALE COMMME VARIANCE DE Norm
         // Integrale 2P c'est avec 2 parametres int et double
         // Integrale 1P c'est avec un parametre double
+		//JCD : Warning - maturité mise en dur
         //norm.setSigma(integral1P(0.0, 1.0, 0.01,&Theta));
+		//Gaussian mynor;
+		//mynor.setSigma(3.0);
+		mynorm.setSigma(sqrt(integral1P(0.0, 1.0, 0.01,mytheta)));
+		double mysigma = sqrt(integral1P(0.0, 1.0, 0.01,mytheta))/sqrt(integral2P(0.0, 1.0, 0, 0.01,legendreCarre));
         
-        S1 += (Obj.*F_Payoff)(EDS1.current_BS_Drift()) * exp (-(sum_theta/2));
-        S2 += pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()),2);
+        //S1 += (Obj.*F_Payoff)(EDS1.current_BS_Drift()) * exp (-(mynorm() + sum_theta/2));
+		S1 += (Obj.*F_Payoff)(EDS1.current_BS_Drift()) * exp (-(g*mysigma + sum_theta/2));
+        //S2 += pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()),2);
+        S2 += pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()) * exp (-(g*mysigma + sum_theta/2)),2);
         
         Sreal1 += (Obj.*F_Payoff)(EDS2.current());
         Sreal2 += pow((Obj.*F_Payoff)(EDS2.current()),2);
