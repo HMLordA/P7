@@ -128,20 +128,21 @@ int main(int argc, const char * argv[]) {
     double vol=0.2;
     double r=0.04;
 	const int NB_ASSETS = 1;
+	const int DIM_THETA = 4;
 
     
-    int M=10000000;
-    int n = 0;
-    double alpha=0.7501;
+    int M=100000;
+    int n = 5;
+    double alpha=0.6001;
     
     double gamma0=0.001;
 
     double c=1.0;
     
     vector<double> theta;
-    for(int i=0; i<1; i++){
-        theta.push_back(1.15);
-		//theta.push_back(atof(argv[1]));
+    for(int i=0; i<DIM_THETA; i++){
+        theta.push_back(0.0);
+		//theta.push_back(1.15);
     }
     
     Theta_Legendre thetaL(theta);
@@ -154,12 +155,13 @@ int main(int argc, const char * argv[]) {
     BS_Drift();
 
     
-    //Robbins_Monro_CallDownIn rmbCID(S, T, vol, r, L, K);
-    //Robbins_Monro_SDE_Algo<Robbins_Monro_CallDownIn, BS_Drift_t<Theta_Legendre>, Black_scholes, Gaussian, &Robbins_Monro_CallDownIn::Payoff_Call>(M, alpha, gamma0, thetaL, c, rmbCID, BS_Drift, BS, G);
+    Robbins_Monro_CallDownIn rmbCID(S, T, vol, r, L, K);
+    Robbins_Monro_SDE_Algo<Robbins_Monro_CallDownIn, BS_Drift_t<Theta_Legendre>, Black_scholes, Gaussian, &Robbins_Monro_CallDownIn::Payoff_Call>(M, alpha, gamma0, thetaL, c, rmbCID, BS_Drift, BS, G);
 	
-	Robbins_Monro_Call_EDS rmbCID(S, T, vol, r, K);
-	Robbins_Monro_SDE_Algo<Robbins_Monro_Call_EDS, BS_Drift_t<Theta_Legendre>, Black_scholes, Gaussian, &Robbins_Monro_Call_EDS::Payoff_Call>(M, alpha, gamma0, thetaL, c, rmbCID, BS_Drift, BS, G);
+	//Robbins_Monro_Call_EDS rmbCID(S, T, vol, r, K);
+	//Robbins_Monro_SDE_Algo<Robbins_Monro_Call_EDS, BS_Drift_t<Theta_Legendre>, Black_scholes, Gaussian, &Robbins_Monro_Call_EDS::Payoff_Call>(M, alpha, gamma0, thetaL, c, rmbCID, BS_Drift, BS, G);
 	
+
 	//Old call
 	/*double gamma0 = 1.0;
 	Matrix m(NB_ASSETS,NB_ASSETS,0);

@@ -15,6 +15,7 @@
 #include <list>
 #include <math.h>
 #include "Variables.h"
+#include "Tools.h"
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@___PROCESSUS___@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -188,7 +189,7 @@ private:
         state operator()(const state & x){
             ///std::cout << theta.value(x.first) <<std::endl;
 			//JCD : add of the s before theta (vol was missing)
-            return state(x.first, x0*exp((mu-s*theta.value(x.first))*x.first + s*x.second));
+            return state(x.first, x0*exp((mu*x.first-s*(integral1P(0.0, x.first, 0.01, theta))) + s*x.second));
         
         }
         
