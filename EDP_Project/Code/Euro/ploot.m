@@ -14,14 +14,17 @@ axis =[Xmin,Xmax,Ymin,Ymax];
 global ul ur u0
 
 sgraph=[Smin;s;Smax];
-Pgraph=  [ul(t);P;  ur(t)];
-Pexgraph=[ul(t);Pex;ur(t)];
-PexgraphBS=[ul(t);PexBS;ur(t)];
-PexgraphError=[ul(t);Pex-PexBS;ur(t)];
+Pgraph=  [ul(t,0);P;  ur(t)];
+Pexgraph=[ul(t,0);Pex;ur(t)];
+PexgraphBS=[ul(t,0);PexBS;ur(t)];
+%K*exp(0*t)-K*exp(x(i))
+PexgraphINTRINSIC=[ul(t,0); max(K-s,0) ;ur(t)]; 
+PexgraphError=[ul(t,0);Pex-PexBS;ur(t)];
 
 plot(sgraph,Pexgraph,'black.-'); hold on; %exact
 plot(sgraph,PexgraphBS,'green.-'); hold on; %exact
-plot(sgraph,Pgraph,'blue.-'); %edp
+plot(sgraph,Pgraph,'blue.-'); hold on; %edp
+plot(sgraph,PexgraphINTRINSIC,'red.-','Linewidth',2); %intrinsic value
 %plot(sgraph,100*(Pgraph-Pexgraph),'red.-');
 titre=strcat('t=',num2str(t)); title(titre);
 xlabel('s');

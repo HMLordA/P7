@@ -7,28 +7,18 @@ clear
 %- DONNEES FINANCIERES / FINANCIAL DATA
 %------------------------
 global  K r sigma T Smin Smax lambda mu gamma kappa
-K=100; sigma=0.15; r=0.05; T=1;  Smin=10; Smax=200; lambda = 0.1; mu = 0.0; gamma = 1.0; 
+K=100; sigma=0.15; r=0.05; T=1;  Smin=10; Smax=200; lambda = 0.5; mu = 0.0; gamma = 0.75; 
 
 kappa = exp(mu+gamma^2/2)-1; % JCD : expectancy of eta, which is log-normal
-
-%- IC : Initial Condition   = function  u0
-%- BD : Boundary Conditions = functions ul, ur
-%- ==> COMPLETE definition of functions u0, ul, ur (inline definitions: see below)
-global ul ur g
-u0= @(s) max(K-s,0);		%- Initial values (payoff function)
-ul= @(t) K*exp(-r*t)-Smin;	%- ul= left  value, at Smin
-ur= @(t) 0;			%- ur= right value, at Smax
-g= @(eta) exp(-(log(eta)-mu)^2/(2*gamma^2))/(sqrt(2*pi)*gamma*eta) ;
-
 
 %------------------------
 %- DONNEES NUMERIQUES / NUMERICAL DATA
 %------------------------
 global I N p nMerton
-I=20; N=40; p = 10; nMerton = 10;
+I=60; N=30; p = 30; nMerton = 10;
 %I=2*10; N=I*I/10; 
 
-SCHEMA='CN-AMER-UL'; 		%- 'EE' or 'EI' or 'CN' or 'CN-AMER-UL' or 'CN-AMER-NEWTON'
+SCHEMA='CN-AMER-NEWTON'; 		%- 'EE' or 'EI' or 'CN' or 'EI-AMER-UL' or 'EI-AMER-NEWTON' or 'CN-AMER-UL' or 'CN-AMER-NEWTON'
 CENTRAGE='CENTRE'; 	%- 'CENTRE', 'DROIT', 'GAUCHE' 
 
 %- Parameters for the graphics:
@@ -49,19 +39,32 @@ fprintf('SCHEMA: %s\n',SCHEMA)
 %- Formule de Black et scholes pour le put europeen vanille : fichier BS.m
 %- function y=BS(t,s,K,r,sigma)
 
-
 %--------------------
 %- MAILLAGE / MESH
 %--------------------
 %- FILL : dt, h, s (time step, mesh step, mesh) 
 global h
 dt=T/N; 		%- pas de temps  / time step
-h=(Xmax-Xmin)/(I+1); 	%- pas d'espace  / mesh step
-%s=Smin+(1:I)'*h; 	%- maillage      / mesh : column vector of size I, containing the mesh values s_i = Smin + i*h
-s=K*exp(Xmin+(1:I)'*h);
+h=(Xmax-Xmin)/(I+1); %- pas d'espace  / mesh step
+s=K*exp(Xmin+(1:I)'*h); 	%- maillage      / mesh : column vector of size I, containing the mesh values s_i = Smin + i*h
+
+
 
 global x
 x= @(i) Xmin + i*h;
+%- IC : Initial Condition   = function  u0
+%- BD : Boundary Conditions = functions ul, ur
+%- ==> COMPLETE definition of functions u0, ul, ur (inline definitions: see below)
+global ul ur g
+u0= @(s) max(K-s,0);		%- Initial values (payoff function)
+%ul= @(t,i) K*exp(-r*t)-K*exp(x(i));	%- ul= left  value, at Smin        EUROP
+ul= @(t,i) K*exp(0*t)-K*exp(x(i)); %- ul= left  value, at Smin            AMERICAIN
+ur= @(t) 0;			%- ur= right value, at Smax
+g= @(eta) exp(-(log(eta)-mu)^2/(2*gamma^2))/(sqrt(2*pi)*gamma*eta) ;
+
+%%%%%%%%%%%%%%%%
+% A remplacer comme avant
+%%%%%%%%%%%%%%%%
 
 %- CFL COEFFICIENT 
 %COMPLETE
@@ -87,17 +90,17 @@ case 'CENTRE';  %- CENTERED APPROXIMATION
   for i=2:I;   A(i,i-1) = -alpha + bet/2; end;
   for i=1:I-1; A(i,i+1) = -alpha - bet/2; end;
   
-  for i=1:I-1;
+  for i=1:I;
       %G(i,i)=0;
-      for j=1:I-1;
-          G(i,j) = g(exp(x(j-i)))*exp(x(j-i));
+      for j=1:I;
+          G(i,j) = g(exp(x(j-i)-Xmin))*exp(x(j-i)-Xmin);
       end;
   end;
           
 
   % FILL IN
-  q = @(t) [(-alpha + bet/2)*ul(t);  zeros(I-2,1);  (-alpha - bet/2)* ur(t)];
-
+  q = @(t) [(-alpha + bet/2)*ul(t,0);  zeros(I-2,1);  (-alpha - bet/2)* ur(t)];
+ % q = @(t) [-0.65*ul(t,0);  zeros(I-2,1);  (-alpha - bet/2)* ur(t)];
   
 % JCD : not implemented
 % case 'DROIT';	%- FORWARD DIFFERENCES
@@ -135,7 +138,6 @@ P=u0(s);
 ploot(0,s,P);
 fprintf('waiting for ''Enter'''); input('');
 
-
 %--------------------
 %- BOUCLE PRINCIPALE / MAIN LOOP
 %--------------------
@@ -157,7 +159,7 @@ for n=0:N-1
           q_=q(t);
           m_=(Id - dt*(A-h*lambda*G))*P;
           m__=Id - dt*(A-h*lambda*G);
-          P =  (Id - dt*(A-h*lambda*G))*P - dt*(q(t)+Tug(t)+Tud(t));
+          P =  (Id - dt*(A-h*lambda*G))*P - dt*(q(t)+Tug(t)+Tud(t));       
           
           % JCD : not yet
           %   case 'EI';
@@ -175,16 +177,51 @@ for n=0:N-1
           Tud1 = Tud(t+dt);
           P = (Id+dt/2*(A-h*lambda*G)) \ ( (Id - dt/2*(A-h*lambda*G)) * P - dt/2*((q0+q1+Tug0+Tug1+Tud0+Tud1)));
 
-      case 'CN-AMER-UL';
+       case 'EI-AMER-UL';
           if n==0
-              B=Id+0.5*dt*(A+G); [U,L]=uldecomp_sol(B);
+              B=Id+dt*(A-h*lambda*G); [U,L]=uldecomp_sol(B);
               fprintf('Verification: norm(B-UL)=%10.5f\n', norm(B-U*L));
           end
           %- pb: min(Bx-b,x-g)=0, b=Pold-dt*q(t1), g=P0(s);
           % COMPLETE:
           t1=t+dt;
-          Pold=P-dt*q(t1);
-          b=(Id-0.5*dt*(A+G))*P-0.5*dt*(q(t1)+q(t)+Tug(t)+Tug(t1)+Tud(t)+Tud(t1));
+          Pold=P-dt*(q(t1)+Tug(t1)+Tud(t1));
+          c=montee(U,P-dt*(q(t1)+Tug(t1)+Tud(t1)));
+          P=descente_p(L,c,P0(s));
+          
+          %- Verification:
+          err=norm(min(B*P-Pold,P-P0(s)));
+          fprintf('Verification: err=%10.5f\n',err);
+          
+       case 'EI-AMER-NEWTON';
+          if (n==0); B=Id+dt*(A-h*lambda*G); end;
+          %- pb: min(Bx-b,x-g)=0, b=P, g=P0(s);
+          % COMPLETE 
+          t1=t+dt;
+          Pold=P;
+          b=P-dt*(q(t1)+Tug(t1)+Tud(t1)); x0=P; gfinal=P0(s); eps=1e-10; kmax=50;
+          [P,k]=newton_sol(B,b,gfinal,x0,eps,kmax);
+          %- Verification
+          err=norm(min(B*P-Pold,P-P0(s)));
+          fprintf('Verif: err=%10.5f\n',err);
+     
+      case 'CN-AMER-UL';
+          if n==0
+              B=(Id+dt/2*(A-h*lambda*G)); [U,L]=uldecomp_sol(B);
+              fprintf('Verification: norm(B-UL)=%10.5f\n', norm(B-U*L));
+          end
+          %- pb: min(Bx-b,x-g)=0, b=Pold-dt*q(t1), g=P0(s);
+          % COMPLETE:
+          t1=t+dt;
+          q0=q(t1);
+          q1=q(t1+dt);
+          Tug0 = Tug(t1);
+          Tug1 = Tug(t1+dt);
+          Tud0 = Tud(t1);
+          Tud1 = Tud(t1+dt);
+          %(Id+dt/2*(A-h*lambda*G)) \ ( (Id - dt/2*(A-h*lambda*G)) * P - dt/2*((q0+q1+Tug0+Tug1+Tud0+Tud1)));
+          Pold= (Id - dt/2*(A-h*lambda*G)) * P - dt/2*((q0+q1+Tug0+Tug1+Tud0+Tud1));
+          b= (Id - dt/2*(A-h*lambda*G)) * P - dt/2*((q0+q1+Tug0+Tug1+Tud0+Tud1));
           c=montee(U,b);
           P=descente_p(L,c,P0(s));
           
@@ -193,13 +230,18 @@ for n=0:N-1
           fprintf('Verification: err=%10.5f\n',err);
           
       case 'CN-AMER-NEWTON';
-          if (n==0); B=Id+0.5*dt*(A+G); end;
+          if (n==0); B=(Id+dt/2*(A-h*lambda*G)); end;
           %- pb: min(Bx-b,x-g)=0, b=P, g=P0(s);
           % COMPLETE
-          t1=t+dt;
-          Pold=P-dt*q(t1); %TODO: check why not in tp2
-          b=(Id-0.5*dt*(A+G))*P-0.5*dt*(q(t1)+q(t)+Tug(t)+Tug(t1)+Tud(t)+Tud(t1));
+          q0=q(t);
+          q1=q(t+dt);
+          Tug0 = Tug(t);
+          Tug1 = Tug(t+dt);
+          Tud0 = Tud(t);
+          Tud1 = Tud(t+dt);
           
+          Pold=P; %TODO: check why not in tp2
+          b=(Id - dt/2*(A-h*lambda*G))*P- dt/2*((q0+q1+Tug0+Tug1+Tud0+Tud1)); 
           x0=P; gfinal=P0(s); eps=1e-10; kmax=50; %TODO : check value for x0 (coherent with b ?)
           % g is already a function name
           [P,k]=newton_sol(B,b,gfinal,x0,eps,kmax);
