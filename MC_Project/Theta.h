@@ -73,4 +73,25 @@ public:
     
 };
 
+class Theta_Legendre_squared: public Theta{
+    
+public:
+    
+    Theta_Legendre_squared(){}
+    
+    Theta_Legendre_squared(vector<double> & thet){ setTh(thet); }
+    
+    double value(double t) const override {
+        
+        double theta=0.0;
+        
+        for(unsigned int j = 0; j < getTh().size(); j++){
+            
+            theta += getTh()[j] * boost::math::legendre_p(j, 2*t-1);
+        }
+        return theta*theta;
+    }
+    
+};
+
 #endif /* Theta_h */

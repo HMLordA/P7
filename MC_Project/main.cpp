@@ -128,12 +128,12 @@ int main(int argc, const char * argv[]) {
     double vol=0.2;
     double r=0.04;
 	const int NB_ASSETS = 1;
-	const int DIM_THETA = 4;
+	const int DIM_THETA = 8;
 
     
     int M=100000;
     int n = 5;
-    double alpha=0.6001;
+    double alpha=0.5001;
     
     double gamma0=0.001;
 
