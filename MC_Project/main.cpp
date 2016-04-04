@@ -128,7 +128,7 @@ int main(int argc, const char * argv[]) {
     double vol=0.2;
     double r=0.04;
 	const int NB_ASSETS = 1;
-	const int DIM_THETA = 4;
+	const int DIM_THETA = 1;
 
     
     int M=100000;
