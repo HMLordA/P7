@@ -189,17 +189,25 @@ for n=0:N-1
           Xi=(((-p):p)'-p-1)*h;
           VG=exp(Xi);
           for i=1:(2*p+1);
-          VG(i) =VG(i)* g(exp(Xi(i)));
+            VG(i) =VG(i)* g(exp(Xi(i)));
           end;
           
+          %FFTVG = transpose(fft(VG));
           FFTVG = fft(VG);
+          myFFTVG = FFTVG;
+          for l=2:I;
+              %myFFTVG = [myFFTVG; FFTVG];
+              myFFTVG = [myFFTVG FFTVG];
+          end;
 
           first=true;
           while(first|(abs(Vn1-Vn)>epss))
               first=false; 
               myMVn = MVn(Vn,t);
               yolo1=fft(myMVn);
-              yolo2=transpose(yolo1)*FFTVG;
+              %yolo2=transpose(yolo1)*FFTVG;
+              %yolo2=transpose(yolo1).*myFFTVG;
+              yolo2=yolo1.*myFFTVG;
               yolo3= ifft(FFTVG);
               yolo4= ifft(yolo1);
               zz = ifft(yolo2);
