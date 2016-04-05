@@ -7,7 +7,7 @@ clear
 %- DONNEES FINANCIERES / FINANCIAL DATA
 %------------------------
 global  K r sigma T Smin Smax lambda mu gamma kappa
-K=100; sigma=0.15; r=0.05; T=1;  Smin=10; Smax=200; lambda = 0.1; mu = 0.0; gamma = 0.75; 
+K=100; sigma=0.15; r=0.05; T=1;  Smin=10; Smax=200; lambda = 0.5; mu = 0.0; gamma = 0.75; 
 
 kappa = exp(mu+gamma^2/2)-1; % JCD : expectancy of eta, which is log-normal
 
@@ -15,7 +15,7 @@ kappa = exp(mu+gamma^2/2)-1; % JCD : expectancy of eta, which is log-normal
 %- DONNEES NUMERIQUES / NUMERICAL DATA
 %------------------------
 global I N p nMerton
-I=40; N=40; p = 15; nMerton = 10;
+I=20; N=40; p = 10; nMerton = 10;
 %I=2*10; N=I*I/10; 
 
 SCHEMA='CN-FFT'; 		%- 'EE' or 'EI' or 'CN' or 'EI-AMER-UL' or 'EI-AMER-NEWTON' or 'CN-AMER-UL' or 'CN-AMER-NEWTON' 'CN-FFT'
@@ -186,36 +186,78 @@ for n=0:N-1
           Vn1=P;
           Vn=P;
           
-          Xi=(((-p):p)'-p-1)*h;
+          %Xi=(((-p):p)'-p-1)*h;
+          
+          
+          %Xi=((-p):p)'*h;
+          %VG=exp(Xi);
+          %for i=1:(2*p+1);
+          %  VG(i) =VG(i)* g(exp(Xi(i)));
+          %end;
+          
+          Xi=((-p):(p+I-1))'*h;
           VG=exp(Xi);
-          for i=1:(2*p+1);
+          for i=1:(2*p+I);
             VG(i) =VG(i)* g(exp(Xi(i)));
           end;
-          
+          %sum(VG)
           %FFTVG = transpose(fft(VG));
           FFTVG = fft(VG);
-          myFFTVG = FFTVG;
-          for l=2:I;
+          %myFFTVG = FFTVG;
+          %for l=2:I;
               %myFFTVG = [myFFTVG; FFTVG];
-              myFFTVG = [myFFTVG FFTVG];
+          %    myFFTVG = [myFFTVG FFTVG];
+          %end;
+          myMVn = zeros(2*p+I,1);
+          for m=1:p;
+              myMVn(m)=ul(t,m-p);
           end;
-
-          first=true;
-          while(first|(abs(Vn1-Vn)>epss))
-              first=false; 
-              myMVn = MVn(Vn,t);
-              yolo1=fft(myMVn);
-              %yolo2=transpose(yolo1)*FFTVG;
-              %yolo2=transpose(yolo1).*myFFTVG;
-              yolo2=yolo1.*myFFTVG;
-              yolo3= ifft(FFTVG);
-              yolo4= ifft(yolo1);
-              zz = ifft(yolo2);
+          for m=1:I;
+              myMVn(m+p)=Vn(m);
+          end;
+          for m=1:p;
+              myMVn(m+p+I)=ur(t);
+          end;
               
-            %  Vn1 = (Id+dt/2*A) \ ( (Id - dt/2*A) * P - dt/2*((q0+q1)+ .. + ..))
+          %VnConst=ifft(fft(MVn(Vn,t)).*conj(FFTVG));
+          VnConst1=ifft(fft(myMVn).*conj(FFTVG));
+          %VnConst = VnConst1((p+1):(p+I));
+          VnConst = VnConst1((1):(I));
+          %conjug=conj(myFFTVG);
+          first=true;
+          while(first|(max(abs(Vn1-Vn)./max(1,abs(Vn1))))>epss)
+              first=false; 
+              
+              Vn=Vn1;
+              %myMVn = MVn(Vn,t);
+              myMVn = zeros(2*p+I,1);
+              for m=1:p;
+                  myMVn(m)=ul(t,m-p);
+              end;
+              for m=1:I;
+                  myMVn(m+p)=Vn(m);
+              end;
+              for m=1:p;
+                  myMVn(m+p+I)=ur(t);
+              end;    
+              %VnVar = ifft(fft(myMVn).*conj(myFFTVG)); 
+              VnVar1 = ifft(fft(myMVn).*conj(FFTVG)); 
+              %VnVar = VnVar1((p+1):(p+I));
+              VnVar = VnVar1((1):(I));
+              
+              %Vn1 = (Id+dt/2*A) \ ( (Id - dt/2*A) * P - dt/2*((q0+q1) - h*lambda*sum(transpose(VnVar),2) - h*lambda*sum(transpose(VnConst),2)) );
+              Vn1 = (Id+dt/2*A) \ ( (Id - dt/2*A) * P - dt/2*((q0+q1) - h*lambda*VnVar - h*lambda*VnConst) );
+
+              %zz =  abs(Vn1-Vn);
+              %zzz =   max(1,abs(Vn1));
+              %zzzz = zz./zzz;
+              %zzzzz = max(zzzz);
+              zzzzzz = max(abs(Vn1-Vn)./max(1,abs(Vn1)));           
+              
           end
           
-
+          P=Vn1;
+          
        case 'EI-AMER-UL';
           if n==0
               B=Id+dt*(A-h*lambda*G); [U,L]=uldecomp_sol(B);

@@ -1,0 +1,745 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass report
+\begin_preamble
+\usepackage[english]{babel}
+\usepackage{amsfonts}
+% Bonus
+\usepackage{dsfont}
+
+
+\newtheorem{theorem}{}\newcommand{\EE}{\mathbb{E}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\PP}{\mathbb{P}}
+\newcommand{\bslash}{\texttt{\symbol{92}}}
+\newcommand{\Tau}{\mathrm{T}}
+
+\title{Unconstrained Recursive Importance Sampling}
+\author{Jean-Christophe DIETRICH and Nazar KOSTYUCHYK}
+\end_preamble
+\use_default_options false
+\begin_modules
+theorems-std
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding iso8859-1
+\fontencoding default
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 10
+\spacing single
+\use_hyperref false
+\papersize a4paper
+\use_geometry false
+\use_package amsmath 2
+\use_package amssymb 2
+\use_package cancel 0
+\use_package esint 1
+\use_package mathdots 0
+\use_package mathtools 2
+\use_package mhchem 0
+\use_package stackrel 0
+\use_package stmaryrd 0
+\use_package undertilde 0
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date true
+\justification true
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+An unconstrained stochastic approximation method of finding the optimal
+ measure change (in an a priori parametric family) for Monte Carlo simulations,
+ has been proposed by Gilles Pages and Vincent Lemaire in 2009.
+ The main idea was to improuve Arouna's work which consisted to use a projected
+ Robbins-Monro procedure to select the parameter minimizing the variance,
+ n a multidimensional Gaussian framework.
+\end_layout
+
+\begin_layout Standard
+Indeed Pages and Lemaire succeeded to develop un unconstrained algorithm
+ where this parameter (scalar or process) is selected by a classical Robbins-Mon
+ro procedure without projection or truncation.
+ In order to obtain this algorithm they intensively use the regularity of
+ the density of the law without assume smoothness of the payoff.
+ They also prove the convergence for a large class of multidimensional distribut
+ions and diffusion processes.
+\end_layout
+
+\begin_layout Standard
+In this project we will implement this algorithm and illustrate the it's
+ effectiveness and disadvantages.
+ In order to make general conclusions, we price different payoff type (maturity
+ dependent, multi-underlying, path-dependent) having or not closed formulas.
+\end_layout
+
+\begin_layout Subsection
+Motivation
+\end_layout
+
+\begin_layout Standard
+The basic problem in Numerical Probability is to optimize the computation
+ by a Monte Carlo simulation of a real quantity m known by a probabilistic
+ representation 
+\begin_inset Formula 
+\[
+m=\EE[F(X)]
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $X:(\Omega,A,\PP)\mapsto(\RR^{d},|.|_{\RR^{d}})$
+\end_inset
+
+ is a random vector and 
+\begin_inset Formula $F:\RR^{d}\mapsto\RR$
+\end_inset
+
+ is a Borel function (
+\begin_inset Formula $F(X)$
+\end_inset
+
+ is square integrable).
+\end_layout
+
+\begin_layout Standard
+We assume that X has an absolutely continuous distribution 
+\begin_inset Formula $\PP_{X}(dx)=p(x)\lambda_{d}(dx)$
+\end_inset
+
+ and that 
+\begin_inset Formula $F\in L^{2}(\PP_{X})$
+\end_inset
+
+ with 
+\begin_inset Formula $\PP(F(X)\neq0)>0$
+\end_inset
+
+.
+ Furthermore we assume that the probability density p is everywhere positive
+ on 
+\begin_inset Formula $\RR^{d}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+The importance sampling applied to a parametrized family of distributions
+ is the following: consider the family of absolutely continuous probability
+ distributions 
+\begin_inset Formula $\pi_{\theta}(dx)=p_{\theta}(x)dx$
+\end_inset
+
+, 
+\begin_inset Formula $\theta\in\Theta$
+\end_inset
+
+(we assume that 
+\begin_inset Formula $\Theta=\RR^{q}$
+\end_inset
+
+), such that 
+\begin_inset Formula $p_{\theta}(x)>0$
+\end_inset
+
+.
+ Then for any 
+\begin_inset Formula $\RR^{q}$
+\end_inset
+
+-valued random variable 
+\begin_inset Formula $X(\theta)$
+\end_inset
+
+ with distribution 
+\begin_inset Formula $\pi_{\theta}$
+\end_inset
+
+, we have: 
+\begin_inset Formula 
+\begin{equation}
+\EE[F(X)]=\EE\left[F(X^{\theta})\frac{p(X)}{p_{\theta}(X)}\right]
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Importance Simpling: finite-dimensional setting
+\end_layout
+
+\begin_layout Subsection
+A first illustration: the Gaussian case revisited
+\end_layout
+
+\begin_layout Standard
+As using the framework defined before in the particular case where 
+\begin_inset Formula $G\backsim\mathcal{N}(0,I_{d})$
+\end_inset
+
+, and 
+\begin_inset Formula $\theta\in\RR^{d}$
+\end_inset
+
+, (1) gives us: 
+\begin_inset Formula 
+\[
+\EE[F(G)]=\EE\left[F(G+\theta)e^{-\theta.G-\frac{|\theta|^{2}}{2}}\right]
+\]
+
+\end_inset
+
+The variance of our new quantity is : 
+\begin_inset Formula 
+\begin{eqnarray*}
+ &  & \forall\theta\in\RR^{d},\quad Var\left(F(G+\theta)e^{-\theta.G-\frac{|\theta|^{2}}{2}}\right)=v(\theta)-\EE[F(G)]^{2}\\
+ &  & where\ v(\theta)=\EE\left[F^{2}(G)e^{-\theta.G-\frac{|\theta|^{2}}{2}}\right]
+\end{eqnarray*}
+
+\end_inset
+
+We can prove that if our payoff satisfy the condition 
+\begin_inset Formula $\PP(F^{2}(G)>0)>0$
+\end_inset
+
+, the 
+\begin_inset Formula $v(\theta)$
+\end_inset
+
+ defined before verify he following relation: 
+\begin_inset Formula 
+\[
+\lim_{|\theta|\to+\infty}v(\theta)=+\infty
+\]
+
+\end_inset
+
+Finaly, if 
+\begin_inset Formula $\forall R>0$
+\end_inset
+
+, 
+\begin_inset Formula $\EE\left[|G|^{2}F^{2}(G)e^{R|G|}\right]<+\infty$
+\end_inset
+
+ concider 
+\begin_inset Formula $\partial v$
+\end_inset
+
+ and 
+\begin_inset Formula $\partial^{2}v$
+\end_inset
+
+ defined as follows: 
+\begin_inset Formula 
+\begin{eqnarray*}
+ &  & \partial v=\EE\left[F^{2}(G)(\theta-G)e^{-\theta.G-\frac{|\theta|^{2}}{2}}\right]\\
+ &  & \partial^{2}v=\EE\left[F^{2}(G)\{I_{d}+(\theta-G)(\theta-G)^{T}\}e^{-\theta.G-\frac{|\theta|^{2}}{2}}\right]
+\end{eqnarray*}
+
+\end_inset
+
+We can prove that 
+\begin_inset Formula $\exists!\ \theta^{*}$
+\end_inset
+
+ difined by: 
+\begin_inset Formula 
+\[
+\theta^{*}=Argmin\ v
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Stochastic Newton-Raphson Algorithm
+\end_layout
+
+\begin_layout Standard
+In this part we will present the Newton-Raphson Algorithm : In the previsous
+ paragraph we've seen that we can define
+\end_layout
+
+\begin_layout Subsection
+Robbins-Monro Unconstrained Algorithm
+\end_layout
+
+\begin_layout Theorem
+:
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+(Extended Robbins-Monro Theorem)
+\end_layout
+
+\end_inset
+
+ Let H : 
+\begin_inset Formula $\RR^{q}\times\RR^{d}\mapsto\RR^{d}$
+\end_inset
+
+ a Borel function and 
+\begin_inset Formula $X$
+\end_inset
+
+ an 
+\begin_inset Formula $\RR^{d}$
+\end_inset
+
+-valued random vector such that 
+\begin_inset Formula $\EE[|H(\theta,X)|]<\infty$
+\end_inset
+
+ for every 
+\begin_inset Formula $\theta\in\RR^{d}$
+\end_inset
+
+.
+ Then set 
+\begin_inset Formula 
+\begin{equation}
+\forall\theta\in\RR^{d},\quad h(\theta)=[H(\theta,X)]
+\end{equation}
+
+\end_inset
+
+Suppose that the function h is continuous and that 
+\begin_inset Formula $T={h=0}$
+\end_inset
+
+ satisfies 
+\begin_inset Formula 
+\begin{equation}
+\forall\theta\in\RR^{d}\bslash\Tau^{*},\ \forall\theta^{*}\in\Tau^{*}\quad\left<\theta-\theta^{*},h(\theta)\right>>0
+\end{equation}
+
+\end_inset
+
+Let 
+\begin_inset Formula $\gamma=(\gamma_{n})_{n\geq1}$
+\end_inset
+
+ be a sequence of gain parameters satisfying 
+\begin_inset Formula 
+\begin{equation}
+\sum\limits _{\substack{n\geq1}
+}^{}{\gamma_{n}}=+\infty\quad and\quad\sum\limits _{\substack{n\geq1}
+}^{}{\gamma_{n}^{2}}<+\infty
+\end{equation}
+
+\end_inset
+
+Suppose that 
+\begin_inset Formula 
+\begin{equation}
+\forall\theta\in\RR^{d},\quad\EE[|H(\theta,X)|^{2}]<C(1+|\theta|^{2})
+\end{equation}
+
+\end_inset
+
+Let 
+\begin_inset Formula $(X_{n})_{n\geq1}$
+\end_inset
+
+ be an 
+\begin_inset Formula $i.i.d.$
+\end_inset
+
+ sequence of random vectors having the distribution of 
+\begin_inset Formula $X$
+\end_inset
+
+, a random vector 
+\begin_inset Formula $\theta_{0}$
+\end_inset
+
+, independent of 
+\begin_inset Formula $(X_{n})_{n\geq1}$
+\end_inset
+
+ satisfying 
+\begin_inset Formula $\EE[|H(\theta_{0}|^{2}]<+\infty$
+\end_inset
+
+, all defined on the same probability space 
+\begin_inset Formula $(\Omega,A,\PP)$
+\end_inset
+
+.Then, the recursive procedure defined by 
+\begin_inset Formula 
+\begin{equation}
+\theta_{n}=\theta_{n-1}-\gamma_{n+1}H(\theta_{n},X_{n+1}),\quad n\geq1
+\end{equation}
+
+\end_inset
+
+satisfies: 
+\begin_inset Formula 
+\begin{equation}
+\exists\theta_{\infty}:(\Omega,A)\mapsto\Tau^{*},\ \theta_{\infty}\in L^{2}(\PP),\quad such\ that\ \theta_{n}\xmapsto{a.s}\theta_{\infty}
+\end{equation}
+
+\end_inset
+
+The convergence also holds in 
+\begin_inset Formula $L^{p}(\PP)$
+\end_inset
+
+, 
+\begin_inset Formula $p\in(0,2)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Translation of the mean
+\end_layout
+
+\begin_layout Standard
+An unconstraint (extended) Robbins-Monro algorithm can be derived in order
+ to minimize the function V , provided the function F satisfies a sub-multiplica
+tive control property, in which 
+\begin_inset Formula $c>0$
+\end_inset
+
+ is a real parameter and 
+\begin_inset Formula $\tilde{F}$
+\end_inset
+
+ a function from 
+\begin_inset Formula $\RR^{d}$
+\end_inset
+
+ to 
+\begin_inset Formula $\RR_{+}$
+\end_inset
+
+, such that, namely: 
+\begin_inset Formula 
+\begin{eqnarray*}
+\left\{ \begin{array}{l}
+\forall x,y\in\RR^{d},\quad|F(x)|<\tilde{F}(x)\ and\ \tilde{F}(x+y)\leq C(1+\tilde{F}(x))^{c}(1+\tilde{F}(y))^{c}\\
+\EE\left[|X|^{2(a-1)}\tilde{F}(X)^{4c}\right]<+\infty
+\end{array}\right.
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Theorem
+: Suppose X and F satisfy 
+\begin_inset Formula $(H1)$
+\end_inset
+
+, 
+\begin_inset Formula $(Ha)$
+\end_inset
+
+ and 
+\begin_inset Formula $(Hc)$
+\end_inset
+
+ for some parameters 
+\begin_inset Formula $a\in(0,2]$
+\end_inset
+
+, 
+\begin_inset Formula $b\in(0,a)$
+\end_inset
+
+ and 
+\begin_inset Formula $\lambda>0$
+\end_inset
+
+, and that the step sequence 
+\begin_inset Formula $(\gamma_{n})_{n\geq1}$
+\end_inset
+
+ satisfies the usual decreasing step assumption 
+\begin_inset Formula 
+\begin{equation}
+\sum\limits _{\substack{n\geq1}
+}^{}{\gamma_{n}}=+\infty\quad and\quad\sum\limits _{\substack{n\geq1}
+}^{}{\gamma_{n}^{2}}<+\infty
+\end{equation}
+
+\end_inset
+
+Then the recursive procedure defined by 
+\begin_inset Formula 
+\begin{equation}
+\theta_{n}=\theta_{n-1}-\gamma_{n+1}H(\theta_{n},X_{n+1}),\quad n\geq1
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $(X_{n})_{n\geq1}$
+\end_inset
+
+ be an 
+\begin_inset Formula $i.i.d.$
+\end_inset
+
+ sequence with the same distribution as X and 
+\begin_inset Formula 
+\begin{equation}
+H(\theta,x)=\frac{F^{2}(x-\theta)}{1+\tilde{F}(-\theta)^{2c}}e^{-2\delta|\theta|^{a}}\frac{p^{2}(x-\theta)}{p(x)p(x-2\theta)}\frac{\bigtriangledown p(x-2\theta)}{p(x-2\theta)},
+\end{equation}
+
+\end_inset
+
+a.s.
+ converges toward an Argmin V
+\begin_inset Formula $-valued\ (square\ integrable)$
+\end_inset
+
+ random variable 
+\begin_inset Formula $\theta^{*}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Adaptive variance reduction for diffusions
+\end_layout
+
+\begin_layout Subsection
+Framework and preliminaries
+\end_layout
+
+\begin_layout Standard
+We consider a d-dimensional Ito process 
+\begin_inset Formula $X=(X_{t})_{t\in[0,T]}$
+\end_inset
+
+ solution to the stochastic differential equation (SDE): 
+\begin_inset Formula 
+\begin{equation}
+dX_{t}=b(t,X_{t})dt+\sigma(t,X_{t})dW_{t},\quad X_{0}=x\in\RR^{d},
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Design of the algorithm
+\end_layout
+
+\begin_layout Theorem
+:Suppose that Assumption (3.23) and 
+\begin_inset Formula $(H_{b,\sigma})$
+\end_inset
+
+ hold.
+\end_layout
+
+\begin_layout Standard
+Let 
+\begin_inset Formula $\varphi$
+\end_inset
+
+ be a bounded Borel 
+\begin_inset Formula $M(q,p)$
+\end_inset
+
+-valued function (with 
+\begin_inset Formula $p\geq1$
+\end_inset
+
+) defined on 
+\begin_inset Formula $[0,T]\times C([0,T],R^{d})$
+\end_inset
+
+, and let F be a functional F satisfying
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\forall x\in C([0,T],R^{d}),\ |F(x)|\leq C_{F}F(1+||x||_{\infty}^{\lambda})
+\end{equation}
+
+\end_inset
+
+for some positive exponent 
+\begin_inset Formula $\lambda>0$
+\end_inset
+
+ (then 
+\begin_inset Formula $F(X)\in L^{r}(\PP)$
+\end_inset
+
+ for every 
+\begin_inset Formula $r>0$
+\end_inset
+
+).
+ Let E be a finite dimensional subspace of 
+\begin_inset Formula $L_{T,p}^{2}$
+\end_inset
+
+ spanned by an orthonormal basis 
+\begin_inset Formula $(e1,...,em)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Let 
+\begin_inset Formula $\eta>0$
+\end_inset
+
+.
+ We define the algorithm by
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\theta_{n}=\theta_{n-1}-\gamma_{n+1}H_{\lambda,\eta}(\theta_{n},X^{(-\theta_{n})},W^{n+1}),\quad n\geq1
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Legendre polynomials
+\end_layout
+
+\begin_layout Standard
+Deterministic case with a trivial driver 
+\begin_inset Formula $\varphi=Id$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We consider the polynomial basis of 
+\begin_inset Formula $L^{2}([0,1],\RR)$
+\end_inset
+
+, composed of the shifted Legendre polynomials 
+\begin_inset Formula $\tilde{P}_{n}(t)$
+\end_inset
+
+defined by: 
+\begin_inset Formula 
+\[
+\forall n>0,\ \forall t\in[0,1],\ \tilde{P}_{n}(t)=P_{n}(2t-1)\quad where\quad P_{n}(t)=\frac{1}{2^{n}n!}\frac{d^{n}}{dt^{n}}\left((t^{2}-1)^{n}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Down & In Call option
+\end_layout
+
+\begin_layout Standard
+We consider a process 
+\begin_inset Formula $(S_{t})_{t\geq0}$
+\end_inset
+
+ solution of the following diffusion 
+\begin_inset Formula 
+\[
+dS_{t}=rdt+\sigma dW_{t},\quad S_{0}=s_{0}\in\RR,
+\]
+
+\end_inset
+
+A Down 
+\begin_inset Formula $\&$
+\end_inset
+
+ In Call option of strike K and barrier L is a Call of strike K which is
+ activated when the underlying X moves down and hits the barrier L.
+ The payoff of such a European option is defined by: 
+\begin_inset Formula 
+\[
+F(S_{T})=\left(S_{T}-K\right)^{+}\mathds{1}_{\left\{ \min\limits _{\substack{0\leq t\leq T}
+}S_{t}\leq L\right\} }
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
