@@ -167,7 +167,6 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
 		}
         //cout<< theta.getTheta_i(0) << endl;
 		
-		//double sum_theta = integral1P<double>(0.0, 1, 0.01, th_sq);
 		vector<double> thet = mytheta.getTh();
 		double sum_theta = 0.0;
         for (auto th =thet.begin();th!=thet.end();th++){
@@ -180,8 +179,8 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
 //            JJ = integralSTO( EDS1.current(), LC[i+1]);
             JJ = integralSTO( EDS1.current(), LC[i]);
             
-            mytheta.setTheta_i( i, mytheta.getTh()[i] - (gamma0/(pow(n+1,alpha)+0*0.0001)) * 1/(1+sum_theta)/*exp(sum_theta)*/*( pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()),2)*( 2*mytheta.getTh()[i] - JJ ) ) );
-            th_sq.setTheta_i(i,mytheta.getTheta_i(i));
+            mytheta.setTheta_i( i, mytheta.getTh()[i] - (gamma0/(pow(n+1,alpha)+0*0.0001)) * exp(sum_theta)*( pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()),2)*( 2*mytheta.getTh()[i] - JJ ) ) );
+            
             plusTheta.setTheta_i(i,-mytheta.getTheta_i(i));
             
         }
@@ -208,14 +207,7 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
         
         //cout << (Obj.*F_Payoff)(EDS1.current_BS_Drift()) * exp (-(gg*mysigma + sum_theta/2)) << endl;
         //cout << (Obj.*F_Payoff)(EDS2.current()) << endl;
-
-		//thet = mytheta.getTh();
-		sum_theta = integral1P<double>(0.0, 1, 0.01, th_sq);
-
-        /*for (auto th =thet.begin();th!=thet.end();th++){
-            sum_theta += pow(*th,2.0);
-        }*/
-
+        
         //S1 += (Obj.*F_Payoff)(EDS1.current_BS_Drift()) * exp (-(mynorm() + sum_theta/2));
 		S1 += (Obj.*F_Payoff)(EDS1.current_BS_Drift()) * exp (-(gg + sum_theta/2));
         //S2 += pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()),2);
