@@ -144,7 +144,8 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
     
 	int counter = 0;
 
-	Theta_Legendre_squared th_sq(mytheta.getTh());
+	vector<double> th = mytheta.getTh();
+	Theta_Legendre_squared th_sq(th);
 
     for (int n=0; n<M; ++n){
         
