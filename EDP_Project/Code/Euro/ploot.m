@@ -20,10 +20,10 @@ PexgraphBS=[ul(t,0);PexBS;ur(t)];
 PexgraphINTRINSIC=[ul(t,0); max(K-s,0) ;ur(t)]; 
 PexgraphError=[ul(t,0);Pex-PexBS;ur(t)];
 
-plot(sgraph,Pexgraph,'black.-'); hold on; %exact
-plot(sgraph,PexgraphBS,'green.-'); hold on; %exact
+%plot(sgraph,Pexgraph,'black.-'); hold on; %exact
+%plot(sgraph,PexgraphBS,'r.-'); hold on; %exact
 plot(sgraph,Pgraph,'blue.-'); hold on; %edp
-%plot(sgraph,PexgraphINTRINSIC,'red.-','Linewidth',2); %intrinsic value
+plot(sgraph,PexgraphINTRINSIC,'red.-','Linewidth',2); %intrinsic value
 %plot(sgraph,100*(Pgraph-Pexgraph),'red.-');
 titre=strcat('t=',num2str(t)); title(titre);
 xlabel('s');
