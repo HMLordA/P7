@@ -159,15 +159,35 @@ public:
     result_type operator()(){
         
         Brownian::operator()();
-        std::transform(value.begin(), value.end(), value_BS_Drift.begin(), bs);
+        //std::transform(value.begin(), value.end(), value_BS_Drift.begin(), bs);
+		auto bs_drift_it = value_BS_Drift.begin();
+		auto it_prec = *value.begin();
+		double value_prec = bs.getX0();
+		for (auto it = value.begin(); it != value.end();it++)
+		{
+			*bs_drift_it = bs(*it,it_prec,value_prec);
+			it_prec = *it;
+			value_prec = bs_drift_it->second;
+			bs_drift_it++;
+		}
         return value_BS_Drift;
     
     }
     
     result_type rediffusion(){
     
-        std::transform(value.begin(), value.end(), value_BS_Drift.begin(), bs);
-        return value_BS_Drift;
+        //std::transform(value.begin(), value.end(), value_BS_Drift.begin(), bs);
+       	auto bs_drift_it = value_BS_Drift.begin();
+		auto it_prec = *value.begin();
+		double value_prec = bs.getX0();
+		for (auto it = value.begin(); it != value.end();it++)
+		{
+			*bs_drift_it = bs(*it,it_prec,value_prec);
+			it_prec = *it;
+			value_prec = bs_drift_it->second;
+			bs_drift_it++;
+		}
+		return value_BS_Drift;
     }
     
     result_type current_BS_Drift() const { return value_BS_Drift; }
@@ -186,17 +206,28 @@ private:
         
         Fun_bs(double x0, double r, double s, S& thet):x0(x0), s(s), mu(r-0.5*s*s), theta(thet) {}
         
-        state operator()(const state & x){
+        //state operator()(const state & x){
+        state operator()(const state & x, const state & x_prec, double value_prec){
             ///std::cout << theta.value(x.first) <<std::endl;
 			//JCD : add of the s before theta (vol was missing)
-            return state(x.first, x0*exp((mu*x.first-s*(integral1P(0.0, x.first, 0.01, theta))) + s*x.second));
-        
+			//state temp = state(x.first, x0*exp((mu*x.first-s*(integral1P(0.0, x.first, 0.01, theta))) + s*x.second));
+			//state res = state(x.first, value_prec*exp((mu*(x.first-x_prec.first)-s*(integral1P(x_prec.first, x.first, 0.01, theta))) + s*(x.second-x_prec.second)));
+			if (x.first==0)
+				return state(x.first, x0);
+			else
+				return state(x.first, value_prec*exp((mu*(x.first-x_prec.first)-s*(integral1P(x_prec.first, x.first, 0.01, theta,3U))) + s*(x.second-x_prec.second)));
+			//return state(x.first, x0*exp((mu*x.first-s*(integral1P(0.0, x.first, 0.01, theta))) + s*x.second));
         }
         
         void setTheta(S& thet){
             
             theta = thet;
         }
+
+		double getX0(){
+
+			return x0;
+		}
         
     private:
         

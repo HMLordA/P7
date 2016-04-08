@@ -32,7 +32,7 @@ public:
     }
     
     // Setter
-    void setTh(vector<double> & theta){
+    virtual void setTh(vector<double> & theta){
         
         theta_i = theta;
     }
@@ -71,6 +71,117 @@ public:
         return theta;
     }
     
+};
+
+class Theta_Legendre_squared: public Theta{
+    
+public:
+    
+    Theta_Legendre_squared(){}
+    
+    Theta_Legendre_squared(vector<double> & thet){ setTh(thet); }
+    
+    double value(double t) const override {
+        
+        double theta=0.0;
+        
+        for(unsigned int j = 0; j < getTh().size(); j++){
+            
+            theta += getTh()[j] * boost::math::legendre_p(j, 2*t-1);
+        }
+        return theta*theta;
+    }
+    
+};
+
+double Phi_n_k(double n, double k, double t);
+
+class Theta_Haar: public Theta{
+    
+public:
+    
+    Theta_Haar():n(0.0){}
+    
+    Theta_Haar(vector<double> & thet){ setTh(thet); }
+
+	virtual void setTh(vector<double> & theta) override {
+		Theta::setTh(theta);
+		//n = int(log((double)theta.size())/log(2.0)); 
+		n = int(log(double(theta.size())+1.0)/log(2.0))-1;
+	}
+    
+    double value(double t) const override {
+        
+        double theta=0.0;
+		//double N = getTh().size();
+		int counter = 0;
+		for (int current_n=0;current_n<=n;current_n++)
+		{
+			int j = pow(2.0,current_n)-1; 
+			for(int current_j=0; current_j<=j; current_j++){ 
+
+				theta += getTh()[counter] * Phi_n_k(current_n,current_j,t);
+			}
+		}
+        return theta;
+    }
+
+private:
+	double n;
+    
+};
+
+class Theta_Haar_squared: public Theta{
+    
+public:
+    
+    Theta_Haar_squared():n(0.0){}
+    
+    Theta_Haar_squared(vector<double> & thet){ setTh(thet); }
+
+	virtual void setTh(vector<double> & theta) override {
+		Theta::setTh(theta);
+		//n = int(log((double)theta.size())/log(2.0)); 
+		n = int(log(double(theta.size())+1.0)/log(2.0))-1;
+	}
+    
+    double value(double t) const override {
+        
+        double theta=0.0;
+		double N = getTh().size();
+		int counter = 0;
+		for (int current_n=0;current_n<=n;current_n++)
+		{
+			int j = pow(2.0,current_n)-1; 
+			for(int current_j=0; current_j<=j; current_j++){   
+				//for(unsigned int j = 0; j < getTh().size(); j++){
+
+				theta += getTh()[j] * Phi_n_k(current_n,current_j,t);
+			}
+		}
+        return theta*theta;
+    }
+
+private:
+	double n;
+    
+};
+
+class HaarCarre{
+
+public:
+    
+    HaarCarre(int my_n,int my_k): n(my_n),k(my_k) {}
+    
+    double value(double x) const{
+		double phi = Phi_n_k(n,k,x);
+        return phi * phi;       
+    }
+    
+private:
+    int n;
+	int k;
+
 };
 
 #endif /* Theta_h */

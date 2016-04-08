@@ -122,30 +122,39 @@ Vector Robbins_Monro_Algo(int M, double alpha, double gamma0, Vector theta, doub
 }
 
 template<class T, class S, class SS, class U, double (T::*F_Payoff)(const std::list<std::pair<double,double>> &) const>
-void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& mytheta, double c, const T& Obj, S& EDS1, SS& EDS2, U& G){
+//void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& mytheta, double c, const T& Obj, S& EDS1, SS& EDS2, U& G){
+void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Haar& mytheta, double c, const T& Obj, S& EDS1, SS& EDS2, U& G){
     
     double S1=0.0;
     double S2=0.0;
     double Sreal1=0.0;
     double Sreal2=0.0;
     //double g;
-    vector<LegendreCarre> LC;
-    double JJ;
+    	
+	//vector<LegendreCarre> LC;
+	vector<HaarCarre> LC;
+    
+	double JJ;
     
     U mynorm = U();
-    Theta_Legendre plusTheta(mytheta);
+    //Theta_Legendre plusTheta(mytheta);
+    Theta_Haar plusTheta(mytheta);
     
-    for(unsigned int j=0; j<mytheta.getTh().size(); j++){
-        
-        //LC.push_back(LegendreCarre(j+1));
-        LC.push_back(LegendreCarre(j));
-        
+	int n = int(log(double(mytheta.getTh().size())+1.0)/log(2.0))-1;
+    for (int current_n=0;current_n<=n;current_n++)
+	{
+		int j = pow(2.0,current_n)-1; 
+		for(int current_j=0; current_j<=j; current_j++){       
+        //LC.push_back(LegendreCarre(j));
+        LC.push_back(HaarCarre(current_n,current_j));
+		}     
     }
     
 	int counter = 0;
 
 	vector<double> th = mytheta.getTh();
-	Theta_Legendre_squared th_sq(th);
+	//Theta_Legendre_squared th_sq(th);
+	Theta_Haar_squared th_sq(th);
 
     for (int n=0; n<M; ++n){
         
@@ -167,6 +176,7 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
 		}
         //cout<< theta.getTheta_i(0) << endl;
 		
+		//double sum_theta = integral1P<double>(0.0, 1, 0.01, th_sq);
 		vector<double> thet = mytheta.getTh();
 		double sum_theta = 0.0;
         for (auto th =thet.begin();th!=thet.end();th++){
@@ -179,8 +189,8 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
 //            JJ = integralSTO( EDS1.current(), LC[i+1]);
             JJ = integralSTO( EDS1.current(), LC[i]);
             
-            mytheta.setTheta_i( i, mytheta.getTh()[i] - (gamma0/(pow(n+1,alpha)+0*0.0001)) * exp(sum_theta)*( pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()),2)*( 2*mytheta.getTh()[i] - JJ ) ) );
-            
+            mytheta.setTheta_i( i, mytheta.getTh()[i] - (gamma0/(pow(n+1,alpha)+0*0.0001)) * 1/(1+sum_theta)/*exp(sum_theta)*/*( pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()),2)*( 2*mytheta.getTh()[i] - JJ ) ) );
+            th_sq.setTheta_i(i,mytheta.getTheta_i(i));
             plusTheta.setTheta_i(i,-mytheta.getTheta_i(i));
             
         }
@@ -207,7 +217,14 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
         
         //cout << (Obj.*F_Payoff)(EDS1.current_BS_Drift()) * exp (-(gg*mysigma + sum_theta/2)) << endl;
         //cout << (Obj.*F_Payoff)(EDS2.current()) << endl;
-        
+
+		//thet = mytheta.getTh();
+		sum_theta = integral1P<double>(0.0, 1, 0.01, th_sq);
+
+        /*for (auto th =thet.begin();th!=thet.end();th++){
+            sum_theta += pow(*th,2.0);
+        }*/
+
         //S1 += (Obj.*F_Payoff)(EDS1.current_BS_Drift()) * exp (-(mynorm() + sum_theta/2));
 		S1 += (Obj.*F_Payoff)(EDS1.current_BS_Drift()) * exp (-(gg + sum_theta/2));
         //S2 += pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()),2);
@@ -225,6 +242,11 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& 
 	double meanSqChanged = exp(-2*Obj.r*Obj.T)*S2/M;
 	double varChanged = meanSqChanged-exp(-2*Obj.r*Obj.T)*pow(S1/M,2);  
 	
+	cout<<"Theta graphe:"<<endl;
+	for(double z=0.01;z<=1.0;z+=0.01)
+	{
+		cout<<"\t"<<z<<"\t"<<mytheta.value(z)<<endl;
+	}
 	cout <<"L'esperance simple : "<< meanSimple << endl;
     cout <<"L'esperence avec changement : "<< meanChanged << endl;
     cout <<"L'esperance du carre simple : "<< meanSqSimple << endl;

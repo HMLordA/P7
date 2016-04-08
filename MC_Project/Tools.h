@@ -89,15 +89,22 @@ template<typename value_type>
 inline value_type integral1P(const value_type a,
                              const value_type b,
                              const value_type tol,
-                             const Theta& th)
+                             const Theta& th,
+							 unsigned int iterations = 8U)
 {
     unsigned n = 1U;
     
     value_type h = (b - a);
+
+	//JCD : add if a==b
+	/*if (b==a)
+		return 0.0;*/
+
     //value_type I = (pow(th.value(a),2.0) + pow(th.value(b),2.0)) * (h / 2);
     value_type I = (th.value(a) + th.value(b)) * (h / 2);
     
-    for(unsigned k = 0U; k < 8U; k++)
+    //for(unsigned k = 0U; k < 8U; k++)
+    for(unsigned k = 0U; k < iterations; k++)
     {
         h /= 2;
         
@@ -110,8 +117,9 @@ inline value_type integral1P(const value_type a,
         
         const value_type I0 = I;
         I = (I / 2) + (h * sum);
-        
-        const value_type ratio     = I0 / I;
+
+		const value_type ratio     = I0 / I;
+        //const value_type ratio     = /*JCD : if we have exactly the same we consider the integral is 0, avoiding a division by 0 */ (I0==I) ? 1.0 : I0 / I;
         const value_type delta     = ratio - 1;
         const value_type delta_abs = ((delta < 0) ? -delta : delta);
         
