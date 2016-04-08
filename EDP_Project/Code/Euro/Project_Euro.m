@@ -7,7 +7,7 @@ clear
 %- DONNEES FINANCIERES / FINANCIAL DATA
 %------------------------
 global  K r sigma T Smin Smax lambda mu gamma kappa
-K=100; sigma=0.15; r=0.05; T=1;  Smin=10; Smax=200; lambda = 0.5; mu = 0.0; gamma = 0.75; 
+K=100; sigma=0.15; r=0.05; T=1;  Smin=30; Smax=500; lambda = 0.1; mu = 0.0; gamma = 0.75; 
 
 kappa = exp(mu+gamma^2/2)-1; % JCD : expectancy of eta, which is log-normal
 
@@ -15,15 +15,18 @@ kappa = exp(mu+gamma^2/2)-1; % JCD : expectancy of eta, which is log-normal
 %- DONNEES NUMERIQUES / NUMERICAL DATA
 %------------------------
 global I N p nMerton
-I=20; N=40; p = 10; nMerton = 10;
+I=40; N=40; p = 80; nMerton = 100;
 %I=2*10; N=I*I/10; 
 
-SCHEMA='CN-FFT'; 		%- 'EE' or 'EI' or 'CN' or 'EI-AMER-UL' or 'EI-AMER-NEWTON' or 'CN-AMER-UL' or 'CN-AMER-NEWTON' 'CN-FFT'
+SCHEMA='EI-AMER-NEWTON'; 		%- 'EE' or 'EI' or 'CN' or 'EI-AMER-UL' or 'EI-AMER-NEWTON' or 'CN-AMER-UL' or 'CN-AMER-NEWTON' 'CN-FFT'
 CENTRAGE='CENTRE'; 	%- 'CENTRE', 'DROIT', 'GAUCHE' 
 
 %- Parameters for the graphics:
 global Xmin Xmax Ymin Ymax
-Xmin=log(Smin/K); Xmax=log(Smax/K); Ymin=-20; Ymax=K;
+%Xmin=log(Smin/K); Xmax=log(Smax/K); Ymin=-20; Ymax=K;
+Xmin=-2; Xmax=2; Ymin=-20; Ymax=K;
+Smin=K*exp(Xmin);
+Smax=K*exp(Xmax);
 err_scale=0; %- Echelle pour le graphe d'erreur.
 deltan=N/10; %- Eventuellement, Affichage uniquement tous les deltan pas.
 
@@ -57,8 +60,8 @@ x= @(i) Xmin + i*h;
 %- ==> COMPLETE definition of functions u0, ul, ur (inline definitions: see below)
 global ul ur g
 u0= @(s) max(K-s,0);		%- Initial values (payoff function)
-ul= @(t,i) K*exp(-r*t)-K*exp(x(i));	%- ul= left  value, at Smin        EUROP
-%ul= @(t,i) K*exp(0*t)-K*exp(x(i)); %- ul= left  value, at Smin            AMERICAIN
+%ul= @(t,i) K*exp(-r*t)-K*exp(x(i));	%- ul= left  value, at Smin        EUROP
+ul= @(t,i) K*exp(0*t)-K*exp(x(i)); %- ul= left  value, at Smin            AMERICAIN
 ur= @(t) 0;			%- ur= right value, at Smax
 g= @(eta) exp(-(log(eta)-mu)^2/(2*gamma^2))/(sqrt(2*pi)*gamma*eta) ;
 

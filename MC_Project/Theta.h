@@ -94,6 +94,7 @@ public:
     
 };
 
+
 double Phi_n_k(double n, double k, double t);
 
 class Theta_Haar: public Theta{
