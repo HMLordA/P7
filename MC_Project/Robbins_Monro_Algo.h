@@ -123,23 +123,31 @@ Vector Robbins_Monro_Algo(int M, double alpha, double gamma0, Vector theta, doub
 
 template<class T, class S, class SS, class U, double (T::*F_Payoff)(const std::list<std::pair<double,double>> &) const>
 //void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Legendre& mytheta, double c, const T& Obj, S& EDS1, SS& EDS2, U& G){
-void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Haar& mytheta, double c, const T& Obj, S& EDS1, SS& EDS2, U& G){
+//void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Haar& mytheta, double c, const T& Obj, S& EDS1, SS& EDS2, U& G){
+void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta* mytheta, double c, const T& Obj, S& EDS1, SS& EDS2, U& G){
     
     double S1=0.0;
     double S2=0.0;
     double Sreal1=0.0;
     double Sreal2=0.0;
     //double g;
-    	
-	//vector<LegendreCarre> LC;
-	vector<HaarCarre> LC;
-    
-	double JJ;
-    
-    U mynorm = U();
-    //Theta_Legendre plusTheta(mytheta);
-    Theta_Haar plusTheta(mytheta);
-    
+
+	double JJ = 0.0;
+	U mynorm = U();
+	Theta* plusTheta = mytheta->copy();
+	//Theta_Legendre plusTheta(mytheta);
+
+	//LEGENDRE
+	vector<LegendreCarre> LC;
+	for (unsigned int j=0;j<mytheta->getTh().size();j++)
+	{     
+        LC.push_back(LegendreCarre(j));    
+    }
+	vector<double> th = mytheta->getTh();
+	Theta_Legendre_squared* th_sq= new Theta_Legendre_squared(th);
+
+	//HAAR
+	/*vector<HaarCarre> LC;
 	int n = int(log(double(mytheta.getTh().size())+1.0)/log(2.0))-1;
 	LC.push_back(HaarCarre(-1,-1));
     for (int current_n=0;current_n<=n;current_n++)
@@ -150,16 +158,15 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Haar& myth
         LC.push_back(HaarCarre(current_n,current_j));
 		}     
     }
-    
+ 	vector<double> th = mytheta.getTh();
+	Theta_Haar_squared th_sq(th); 
+	*/
+	
 	int counter = 0;
-
-	vector<double> th = mytheta.getTh();
-	//Theta_Legendre_squared th_sq(th);
-	Theta_Haar_squared th_sq(th);
 
     for (int n=0; n<M; ++n){
         
-        EDS1.setNewTheta(mytheta);
+        //EDS1.setNewTheta(mytheta);
         
         EDS1();
         EDS2();
@@ -167,8 +174,8 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Haar& myth
 		if (n == counter)
 		{
 			cout <<"Theta at "<<n<<" : " ;
-			for (unsigned int ll=0;ll<mytheta.getTh().size();ll++)
-				cout<<mytheta.getTheta_i(ll)<<",";
+			for (unsigned int ll=0;ll<mytheta->getTh().size();ll++)
+				cout<<mytheta->getTheta_i(ll)<<",";
 			cout<<endl;
 			/*if (n < 100)
 				counter+=1;
@@ -178,46 +185,29 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Haar& myth
         //cout<< theta.getTheta_i(0) << endl;
 		
 		//double sum_theta = integral1P<double>(0.0, 1, 0.01, th_sq);
-		vector<double> thet = mytheta.getTh();
+		vector<double> thet = mytheta->getTh();
 		double sum_theta = 0.0;
         for (auto th =thet.begin();th!=thet.end();th++){
             sum_theta += pow(*th,2.0);
         }
 
         // Mise a jour des thetas
-        for(unsigned int i=0; i<mytheta.getTh().size(); i++){
+        for(unsigned int i=0; i<mytheta->getTh().size(); i++){
             
-//            JJ = integralSTO( EDS1.current(), LC[i+1]);
             JJ = integralSTO( EDS1.current(), LC[i]);
-			/*if (n==1)
-			{
-				if (i==4)
-				{
-					cout<<"LC values: 0"<< LC[4].value(0.0)<< " 0.1"<<LC[4].value(0.1)<< "0.2"<<LC[4].value(0.2);
-				}
-				//cout<<"EDS:"<<EDS1<<endl;
-				cout <<"n=1,i="<<i<<",JJ="<<JJ<<endl;
-
-			}*/
             
-            mytheta.setTheta_i( i, mytheta.getTh()[i] - (gamma0/(pow(n+1,alpha)+0*0.0001)) * 1/(1+sum_theta)/*exp(sum_theta)*/*( pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()),2)*( 2*mytheta.getTh()[i] - JJ ) ) );
-            th_sq.setTheta_i(i,mytheta.getTheta_i(i));
-            plusTheta.setTheta_i(i,-mytheta.getTheta_i(i));
+            mytheta->setTheta_i( i, mytheta->getTh()[i] - (gamma0/(pow(n+1,alpha)+0*0.0001)) * 1/(1+sum_theta)/*exp(sum_theta)*/*( pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()),2)*( 2*mytheta->getTh()[i] - JJ ) ) );
+            th_sq->setTheta_i(i,mytheta->getTheta_i(i));
+            plusTheta->setTheta_i(i,-mytheta->getTheta_i(i));
             
         }
 		
-		/*if (n<=10){
-		cout <<"Theta at "<<n<<" : " ;
-		for (unsigned int ll=0;ll<mytheta.getTh().size();ll++)
-			cout<<mytheta.getTheta_i(ll)<<",";
-		cout<<endl; 
-		}*/
         //_______________________
         // + theta dans la diffusion
         EDS1.setNewTheta(plusTheta);
         EDS1.rediffusion();
         
-        double gg = integralSTO(EDS1.current(), mytheta);
+        double gg = integralSTO(EDS1.current(), *mytheta);
         
         // INTEGRALE COMMME VARIANCE DE Norm
         // Integrale 2P c'est avec 2 parametres int et double
@@ -236,7 +226,7 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Haar& myth
         //cout << (Obj.*F_Payoff)(EDS2.current()) << endl;
 
 		//thet = mytheta.getTh();
-		sum_theta = integral1P<double>(0.0, 1, 0.01, th_sq);
+		sum_theta = integral1P<double>(0.0, 1, 0.01, *th_sq);
 
         /*for (auto th =thet.begin();th!=thet.end();th++){
             sum_theta += pow(*th,2.0);
@@ -262,7 +252,7 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Haar& myth
 	cout<<"Theta graphe:"<<endl;
 	for(double z=0.01;z<=1.0;z+=0.01)
 	{
-		cout<<"\t"<<z<<"\t"<<mytheta.value(z)<<endl;
+		cout<<"\t"<<z<<"\t"<<mytheta->value(z)<<endl;
 	}
 	cout <<"L'esperance simple : "<< meanSimple << endl;
     cout <<"L'esperence avec changement : "<< meanChanged << endl;
@@ -275,6 +265,9 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Haar& myth
     cout<<"["<<meanSimple-1.96*sqrt(varSimple/M)<<";"<<meanSimple+1.96*sqrt(varSimple/M)<<"]"<<endl;
 	cout<<"Intervalle de confiance pour le prix avec changement:";
     cout<<"["<<meanChanged-1.96*sqrt(varChanged/M)<<";"<<meanChanged+1.96*sqrt(varChanged/M)<<"]"<<endl;
+	
+	delete plusTheta;
+	delete th_sq;
     
 }
 
