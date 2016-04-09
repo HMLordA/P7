@@ -141,9 +141,10 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Haar& myth
     Theta_Haar plusTheta(mytheta);
     
 	int n = int(log(double(mytheta.getTh().size())+1.0)/log(2.0))-1;
+	LC.push_back(HaarCarre(-1,-1));
     for (int current_n=0;current_n<=n;current_n++)
 	{
-		int j = pow(2.0,current_n)-1; 
+		double j = pow(2.0,current_n)-1; 
 		for(int current_j=0; current_j<=j; current_j++){       
         //LC.push_back(LegendreCarre(j));
         LC.push_back(HaarCarre(current_n,current_j));
@@ -166,7 +167,7 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Haar& myth
 		if (n == counter)
 		{
 			cout <<"Theta at "<<n<<" : " ;
-			for (int ll=0;ll<mytheta.getTh().size();ll++)
+			for (unsigned int ll=0;ll<mytheta.getTh().size();ll++)
 				cout<<mytheta.getTheta_i(ll)<<",";
 			cout<<endl;
 			/*if (n < 100)
@@ -188,13 +189,29 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta_Haar& myth
             
 //            JJ = integralSTO( EDS1.current(), LC[i+1]);
             JJ = integralSTO( EDS1.current(), LC[i]);
+			/*if (n==1)
+			{
+				if (i==4)
+				{
+					cout<<"LC values: 0"<< LC[4].value(0.0)<< " 0.1"<<LC[4].value(0.1)<< "0.2"<<LC[4].value(0.2);
+				}
+				//cout<<"EDS:"<<EDS1<<endl;
+				cout <<"n=1,i="<<i<<",JJ="<<JJ<<endl;
+
+			}*/
             
             mytheta.setTheta_i( i, mytheta.getTh()[i] - (gamma0/(pow(n+1,alpha)+0*0.0001)) * 1/(1+sum_theta)/*exp(sum_theta)*/*( pow((Obj.*F_Payoff)(EDS1.current_BS_Drift()),2)*( 2*mytheta.getTh()[i] - JJ ) ) );
             th_sq.setTheta_i(i,mytheta.getTheta_i(i));
             plusTheta.setTheta_i(i,-mytheta.getTheta_i(i));
             
         }
-        
+		
+		/*if (n<=10){
+		cout <<"Theta at "<<n<<" : " ;
+		for (unsigned int ll=0;ll<mytheta.getTh().size();ll++)
+			cout<<mytheta.getTheta_i(ll)<<",";
+		cout<<endl; 
+		}*/
         //_______________________
         // + theta dans la diffusion
         EDS1.setNewTheta(plusTheta);

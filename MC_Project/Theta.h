@@ -16,6 +16,8 @@
 
 using namespace std;
 
+#define DIM_THETA 3
+
 class Theta{
     
 public:
@@ -108,20 +110,22 @@ public:
 	virtual void setTh(vector<double> & theta) override {
 		Theta::setTh(theta);
 		//n = int(log((double)theta.size())/log(2.0)); 
-		n = int(log(double(theta.size())+1.0)/log(2.0))-1;
+		n = int(log(double(theta.size()-1)+1.0)/log(2.0))-1;
 	}
     
     double value(double t) const override {
         
         double theta=0.0;
 		//double N = getTh().size();
-		int counter = 0;
+		theta += getTh()[0]; //constant first
+		int counter = 1;
 		for (int current_n=0;current_n<=n;current_n++)
 		{
-			int j = pow(2.0,current_n)-1; 
+			double j = pow(2.0,current_n)-1; 
 			for(int current_j=0; current_j<=j; current_j++){ 
 
 				theta += getTh()[counter] * Phi_n_k(current_n,current_j,t);
+				counter++;
 			}
 		}
         return theta;
@@ -143,21 +147,22 @@ public:
 	virtual void setTh(vector<double> & theta) override {
 		Theta::setTh(theta);
 		//n = int(log((double)theta.size())/log(2.0)); 
-		n = int(log(double(theta.size())+1.0)/log(2.0))-1;
+		n = int(log(double(theta.size()-1)+1.0)/log(2.0))-1;
 	}
     
     double value(double t) const override {
         
         double theta=0.0;
 		double N = getTh().size();
-		int counter = 0;
+		theta += getTh()[0];
+		int counter = 1;
 		for (int current_n=0;current_n<=n;current_n++)
 		{
-			int j = pow(2.0,current_n)-1; 
+			double j = pow(2.0,current_n)-1; 
 			for(int current_j=0; current_j<=j; current_j++){   
 				//for(unsigned int j = 0; j < getTh().size(); j++){
-
-				theta += getTh()[j] * Phi_n_k(current_n,current_j,t);
+				theta += getTh()[counter] * Phi_n_k(current_n,current_j,t);
+				counter++;
 			}
 		}
         return theta*theta;
@@ -175,8 +180,13 @@ public:
     HaarCarre(int my_n,int my_k): n(my_n),k(my_k) {}
     
     double value(double x) const{
-		double phi = Phi_n_k(n,k,x);
-        return phi * phi;       
+
+		double phi = 1;
+		if (n >= 0) //non constant polynom
+			phi = Phi_n_k(n,k,x);
+		else 
+			phi = phi*(x>=0)*(x<=1);
+        return phi/* * phi*/;       
     }
     
 private:

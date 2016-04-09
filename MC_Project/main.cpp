@@ -122,25 +122,26 @@ return boost::math::legendre_p(l, x);
 int main(int argc, const char * argv[]) {
 
 	double S=100.0;
-	double K=110.0;
-	double L=92.0;
+	double K=115.0;
+	double L=60.0;
 	double T=1.0;
 	double vol=0.7;
 	double r=0.04;
 	const int NB_ASSETS = 1;
-	const int DIM_THETA = 1;
+	//const int DIM_THETA = 2;
 
-	int M=10000;
+	int M=100000;
 	int n = 5;
 	double alpha=0.5001;
 
-	double gamma0=0.0001;
+	double gamma0=0.001;
 
 	double c=1.0;
 
 	vector<double> theta;
 	//for(int i=0; i<2; i++){
-	for (int i=0; i<std::pow(2.0,DIM_THETA+1.0)-1; i++){
+	//for (int i=0; i<std::pow(2.0,DIM_THETA+1.0)-1; i++){
+	for (int i=0; i<std::pow(2.0,DIM_THETA+1.0); i++){
 		theta.push_back(0.0);
 		//theta.push_back(1.15);
 	}
