@@ -33,6 +33,7 @@ public:
     double value(double x) const{
         
         return pow(boost::math::legendre_p(l, x),2);
+        //return boost::math::legendre_p(l, x);
         
     }
     

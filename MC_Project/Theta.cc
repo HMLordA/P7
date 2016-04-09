@@ -11,11 +11,13 @@
 static double* pow_array = 0;
 static double* half_pow_array = 0;
 
+#define MAX_DIM_THETA 4
+
 double Phi_n_k(double n, double k, double t)
 {
 	if (pow_array == 0)
 	{
-		double nb_power_2 = DIM_THETA+1;
+		double nb_power_2 = MAX_DIM_THETA+1;
 		pow_array = new double[(int)nb_power_2];
 		half_pow_array = new double[(int)nb_power_2];
 		pow_array[0] = 1.0;

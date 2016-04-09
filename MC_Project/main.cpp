@@ -121,47 +121,54 @@ return boost::math::legendre_p(l, x);
 
 int main(int argc, const char * argv[]) {
 
-	double S=100.0;
-	double K=115.0;
-	double L=60.0;
-	double T=1.0;
-	double vol=0.7;
-	double r=0.04;
+	//Call barrière Haar
+	//double S=100.0; double K=115.0; double L=60.0; double T=1.0; double vol=0.7; double r=0.04; double alpha=0.5001; double gamma0=0.001;
+	
+	//Call barriere Legendre
+	double S=100.0; double K=115.0; double L=60.0; double T=1.0; double vol=0.7; double r=0.04; double alpha=0.5001; double gamma0=0.0001;
+	
 	const int NB_ASSETS = 1;
-	//const int DIM_THETA = 2;
+	const int DIM_THETA = 4;
 
 	int M=100000;
 	int n = 5;
-	double alpha=0.5001;
 
-	double gamma0=0.001;
+
+
 
 	double c=1.0;
 
 	vector<double> theta;
-	//for(int i=0; i<2; i++){
-	//for (int i=0; i<std::pow(2.0,DIM_THETA+1.0)-1; i++){
-	for (int i=0; i<std::pow(2.0,DIM_THETA+1.0); i++){
-		theta.push_back(0.0);
-		//theta.push_back(1.15);
-	}
-
-	//Theta_Legendre thetaL(theta);
-	Theta_Haar thetaL(theta);
-
+	
+	//PAYOFF
+	Robbins_Monro_CallDownIn rmbCID(S, T, vol, r, L, K);
 	Gaussian G(0.0,1.0);
-
 	Black_scholes BS(n, S, r, vol, T);
 	BS();
-	//BS_Drift_t<Theta_Legendre> BS_Drift(n, S, r, vol, thetaL, T);
+
+
+	//LEGENDRE
+	for (int i=0; i<DIM_THETA; i++){
+		theta.push_back(0.0);
+	}
+	Theta_Legendre* thetaL = new Theta_Legendre(theta);
+	BS_Drift_t<Theta> BS_Drift(n, S, r, vol, thetaL, T);
+	BS_Drift();
+	Robbins_Monro_SDE_Algo<Robbins_Monro_CallDownIn, BS_Drift_t<Theta>, Black_scholes, Gaussian, &Robbins_Monro_CallDownIn::Payoff_Call>(M, alpha, gamma0, thetaL, c, rmbCID, BS_Drift, BS, G);
+
+	delete thetaL;
+	//HAAR
+	/*for (int i=0; i<std::pow(2.0,DIM_THETA+1.0); i++){
+		theta.push_back(0.0);
+	}
+	Theta_Haar thetaL(theta);
 	BS_Drift_t<Theta_Haar> BS_Drift(n, S, r, vol, thetaL, T);
 	BS_Drift();
+	Robbins_Monro_SDE_Algo<Robbins_Monro_CallDownIn, BS_Drift_t<Theta>, Black_scholes, Gaussian, &Robbins_Monro_CallDownIn::Payoff_Call>(M, alpha, gamma0, thetaL, c, rmbCID, BS_Drift, BS, G);
+	*/
 
 
-	Robbins_Monro_CallDownIn rmbCID(S, T, vol, r, L, K);
 	//Robbins_Monro_SDE_Algo<Robbins_Monro_CallDownIn, BS_Drift_t<Theta_Legendre>, Black_scholes, Gaussian, &Robbins_Monro_CallDownIn::Payoff_Call>(M, alpha, gamma0, thetaL, c, rmbCID, BS_Drift, BS, G);
-	Robbins_Monro_SDE_Algo<Robbins_Monro_CallDownIn, BS_Drift_t<Theta_Haar>, Black_scholes, Gaussian, &Robbins_Monro_CallDownIn::Payoff_Call>(M, alpha, gamma0, thetaL, c, rmbCID, BS_Drift, BS, G);
-
 	//Robbins_Monro_Call_EDS rmbCID(S, T, vol, r, K);
 	//Robbins_Monro_SDE_Algo<Robbins_Monro_Call_EDS, BS_Drift_t<Theta_Legendre>, Black_scholes, Gaussian, &Robbins_Monro_Call_EDS::Payoff_Call>(M, alpha, gamma0, thetaL, c, rmbCID, BS_Drift, BS, G);
 

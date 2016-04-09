@@ -16,7 +16,6 @@
 
 using namespace std;
 
-#define DIM_THETA 3
 
 class Theta{
     
@@ -24,7 +23,9 @@ public:
     Theta(){}
     Theta(vector<double> & thet): theta_i(thet){}
     
-    virtual double value(double t) const =0;
+	virtual double value(double t) const { throw 1; return 0.0; }
+	
+	virtual Theta* copy() {return 0;}
     
     // Getter
     vector<double> getTh() const{
@@ -61,6 +62,8 @@ public:
     Theta_Legendre(){}
     
     Theta_Legendre(vector<double> & thet){ setTh(thet); }
+
+	virtual Theta_Legendre* copy() override {return new Theta_Legendre(this->getTh());}
     
     double value(double t) const override {
         
@@ -82,6 +85,8 @@ public:
     Theta_Legendre_squared(){}
     
     Theta_Legendre_squared(vector<double> & thet){ setTh(thet); }
+
+	virtual Theta_Legendre_squared* copy() override {return new Theta_Legendre_squared(this->getTh());}
     
     double value(double t) const override {
         
@@ -112,6 +117,8 @@ public:
 		//n = int(log((double)theta.size())/log(2.0)); 
 		n = int(log(double(theta.size()-1)+1.0)/log(2.0))-1;
 	}
+
+	virtual Theta_Haar* copy() override {return new Theta_Haar(this->getTh());}
     
     double value(double t) const override {
         
@@ -143,6 +150,8 @@ public:
     Theta_Haar_squared():n(0.0){}
     
     Theta_Haar_squared(vector<double> & thet){ setTh(thet); }
+
+	virtual Theta_Haar_squared* copy() override {return new Theta_Haar_squared(this->getTh());}
 
 	virtual void setTh(vector<double> & theta) override {
 		Theta::setTh(theta);

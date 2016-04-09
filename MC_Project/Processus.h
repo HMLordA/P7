@@ -154,7 +154,7 @@ class BS_Drift_t: public Brownian {
     
 public:
     
-    BS_Drift_t(int n, double x0, double r, double s, S& theta, double T=1): Brownian(n, T), bs(x0, r, s, theta), value_BS_Drift(value) {}
+    BS_Drift_t(int n, double x0, double r, double s, S* theta, double T=1): Brownian(n, T), bs(x0, r, s, theta), value_BS_Drift(value) {}
     
     result_type operator()(){
         
@@ -193,7 +193,7 @@ public:
     result_type current_BS_Drift() const { return value_BS_Drift; }
     
     
-    void setNewTheta(S& thet){
+    void setNewTheta(S* thet){
     
         bs.setTheta(thet);
     }
@@ -204,7 +204,7 @@ private:
         
     public:
         
-        Fun_bs(double x0, double r, double s, S& thet):x0(x0), s(s), mu(r-0.5*s*s), theta(thet) {}
+        Fun_bs(double x0, double r, double s, S* thet):x0(x0), s(s), mu(r-0.5*s*s), theta(thet) {}
         
         //state operator()(const state & x){
         state operator()(const state & x, const state & x_prec, double value_prec){
@@ -215,11 +215,11 @@ private:
 			if (x.first==0)
 				return state(x.first, x0);
 			else
-				return state(x.first, value_prec*exp((mu*(x.first-x_prec.first)-s*(integral1P(x_prec.first, x.first, 0.01, theta,3U))) + s*(x.second-x_prec.second)));
+				return state(x.first, value_prec*exp((mu*(x.first-x_prec.first)-s*(integral1P(x_prec.first, x.first, 0.01, *theta,3U))) + s*(x.second-x_prec.second)));
 			//return state(x.first, x0*exp((mu*x.first-s*(integral1P(0.0, x.first, 0.01, theta))) + s*x.second));
         }
         
-        void setTheta(S& thet){
+        void setTheta(S* thet){
             
             theta = thet;
         }
@@ -232,7 +232,7 @@ private:
     private:
         
         double x0, s, mu;
-        S theta;
+        S* theta;
         
     } bs;
     
