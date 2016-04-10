@@ -19,7 +19,7 @@
 \title{Unconstrained Recursive Importance Sampling}
 \author{Jean-Christophe DIETRICH and Nazar KOSTYUCHYK}
 \end_preamble
-\use_default_options false
+\use_default_options true
 \begin_modules
 theorems-std
 \end_modules
@@ -71,8 +71,8 @@ theorems-std
 \shortcut idx
 \color #008000
 \end_index
-\secnumdepth 3
-\tocdepth 3
+\secnumdepth 2
+\tocdepth 2
 \paragraph_separation indent
 \paragraph_indentation default
 \quotes_language english
@@ -88,6 +88,22 @@ theorems-std
 
 \begin_body
 
+\begin_layout Title
+Monte-Carlo Project : 
+\begin_inset Newline newline
+\end_inset
+
+Unconstrained Recursive Importance Sampling
+\end_layout
+
+\begin_layout Author
+Jean-Christophe DIETRICH & Nazar KOSTYUCHYK
+\end_layout
+
+\begin_layout Date
+Master M2MO - April 2016
+\end_layout
+
 \begin_layout Standard
 \begin_inset CommandInset toc
 LatexCommand tableofcontents
@@ -95,9 +111,13 @@ LatexCommand tableofcontents
 \end_inset
 
 
+\begin_inset Newpage newpage
+\end_inset
+
+
 \end_layout
 
-\begin_layout Section
+\begin_layout Chapter
 Introduction
 \end_layout
 
@@ -105,35 +125,35 @@ Introduction
 An unconstrained stochastic approximation method of finding the optimal
  measure change (in an a priori parametric family) for Monte Carlo simulations,
  has been proposed by Gilles Pages and Vincent Lemaire in 2009.
- The main idea was to improuve Arouna's work which consisted to use a projected
- Robbins-Monro procedure to select the parameter minimizing the variance,
- n a multidimensional Gaussian framework.
+ The main idea was to improve Arouna's previous work which consisted to
+ use a projected Robbins-Monro procedure to select the parameter minimizing
+ the variance, in a multidimensional Gaussian framework.
 \end_layout
 
 \begin_layout Standard
-Indeed Pages and Lemaire succeeded to develop un unconstrained algorithm
- where this parameter (scalar or process) is selected by a classical Robbins-Mon
-ro procedure without projection or truncation.
+In the approach developed by the authors, this parameter (scalar or process)
+ is selected by a classical Robbins-Monro procedure without projection or
+ truncation, allowing the method to be unconstrained.
  In order to obtain this algorithm they intensively use the regularity of
- the density of the law without assume smoothness of the payoff.
+ the density of the law without assuming smoothness of the payoff.
  They also prove the convergence for a large class of multidimensional distribut
 ions and diffusion processes.
 \end_layout
 
 \begin_layout Standard
-In this project we will implement this algorithm and illustrate the it's
- effectiveness and disadvantages.
- In order to make general conclusions, we price different payoff type (maturity
- dependent, multi-underlying, path-dependent) having or not closed formulas.
+In this project we will implement this algorithm and illustrate its effectivenes
+s and disadvantages on a set of payoffs and processes.
+ In order to make general conclusions, we price different payoff types (differen
+t maturities, multi-underlying, path-dependent), having or not closed formulas.
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Section
 Motivation
 \end_layout
 
 \begin_layout Standard
-The basic problem in Numerical Probability is to optimize the computation
- by a Monte Carlo simulation of a real quantity m known by a probabilistic
+The basic problem in numerical probability is to optimize by a Monte Carlo
+ simulation the computation of a real quantity m known by a probabilistic
  representation 
 \begin_inset Formula 
 \[
@@ -198,7 +218,11 @@ The importance sampling applied to a parametrized family of distributions
 \begin_inset Formula $p_{\theta}(x)>0$
 \end_inset
 
-.
+ 
+\begin_inset Formula $\lambda_{d}(dx)$
+\end_inset
+
+ a.e.
  Then for any 
 \begin_inset Formula $\RR^{q}$
 \end_inset
@@ -214,7 +238,7 @@ The importance sampling applied to a parametrized family of distributions
 , we have: 
 \begin_inset Formula 
 \begin{equation}
-\EE[F(X)]=\EE\left[F(X^{\theta})\frac{p(X)}{p_{\theta}(X)}\right]
+\EE[F(X)]=\EE\left[F(X^{\theta})\frac{p(X^{\theta})}{p_{\theta}(X^{\theta})}\right]
 \end{equation}
 
 \end_inset
@@ -222,89 +246,200 @@ The importance sampling applied to a parametrized family of distributions
 
 \end_layout
 
-\begin_layout Section
-Importance Simpling: finite-dimensional setting
-\end_layout
+\begin_layout Standard
+We are looking for the variable 
+\begin_inset Formula $X^{\theta}$
+\end_inset
 
-\begin_layout Subsection
-A first illustration: the Gaussian case revisited
+ with the minimal variance i.e.
+ (as they have the same mean) the one with the lowest quadratic norm 
+\begin_inset Formula 
+\begin{equation}
+V(\theta)=\EE\left[F^{2}(X^{\theta})\right]=\EE\left[F(X^{\theta})^{2}\frac{p^{2}(X^{\theta})}{p_{\theta}^{2}(X^{\theta})}\right]=\EE\left[F^{2}(X)\frac{p(X)}{p_{\theta}(X)}\right]
+\end{equation}
+
+\end_inset
+
+.
+ We therefore want to find 
+\begin_inset Formula $\theta^{*}$
+\end_inset
+
+solving the minimization problem 
+\begin_inset Formula 
+\[
+\theta^{*}=argmin_{\theta\in\RR^{^{q}}}V(\theta)
+\]
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-As using the framework defined before in the particular case where 
-\begin_inset Formula $G\backsim\mathcal{N}(0,I_{d})$
-\end_inset
-
-, and 
-\begin_inset Formula $\theta\in\RR^{d}$
-\end_inset
-
-, (1) gives us: 
-\begin_inset Formula 
-\[
-\EE[F(G)]=\EE\left[F(G+\theta)e^{-\theta.G-\frac{|\theta|^{2}}{2}}\right]
-\]
-
-\end_inset
-
-The variance of our new quantity is : 
-\begin_inset Formula 
-\begin{eqnarray*}
- &  & \forall\theta\in\RR^{d},\quad Var\left(F(G+\theta)e^{-\theta.G-\frac{|\theta|^{2}}{2}}\right)=v(\theta)-\EE[F(G)]^{2}\\
- &  & where\ v(\theta)=\EE\left[F^{2}(G)e^{-\theta.G-\frac{|\theta|^{2}}{2}}\right]
-\end{eqnarray*}
-
-\end_inset
-
-We can prove that if our payoff satisfy the condition 
-\begin_inset Formula $\PP(F^{2}(G)>0)>0$
-\end_inset
-
-, the 
-\begin_inset Formula $v(\theta)$
-\end_inset
-
- defined before verify he following relation: 
-\begin_inset Formula 
-\[
-\lim_{|\theta|\to+\infty}v(\theta)=+\infty
-\]
-
-\end_inset
-
-Finaly, if 
-\begin_inset Formula $\forall R>0$
+It is possible to show that under certain conditions on the convexity and
+ growth of the density 
+\begin_inset Formula $p_{\theta}$
 \end_inset
 
 , 
-\begin_inset Formula $\EE\left[|G|^{2}F^{2}(G)e^{R|G|}\right]<+\infty$
+\begin_inset Formula $\theta^{*}$
 \end_inset
 
- concider 
-\begin_inset Formula $\partial v$
+is unique.
+ We can therefore use a minimization procedure like the Robbins-Monro or
+ Newton-Raphson algorithms.
+\end_layout
+
+\begin_layout Section
+A benchmark : stochastic Newton-Raphson algorithm
+\end_layout
+
+\begin_layout Standard
+For more clarity we consider in this section the d-dimensional independent
+ gaussian case.
+ Let us consider 
+\begin_inset Formula $X\sim N(0,\,I_{d})$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+For 
+\begin_inset Formula $\theta\in\RR^{d}$
 \end_inset
 
  and 
-\begin_inset Formula $\partial^{2}v$
+\begin_inset Formula $F$
 \end_inset
 
- defined as follows: 
-\begin_inset Formula 
-\begin{eqnarray*}
- &  & \partial v=\EE\left[F^{2}(G)(\theta-G)e^{-\theta.G-\frac{|\theta|^{2}}{2}}\right]\\
- &  & \partial^{2}v=\EE\left[F^{2}(G)\{I_{d}+(\theta-G)(\theta-G)^{T}\}e^{-\theta.G-\frac{|\theta|^{2}}{2}}\right]
-\end{eqnarray*}
-
-\end_inset
-
-We can prove that 
-\begin_inset Formula $\exists!\ \theta^{*}$
-\end_inset
-
- difined by: 
+ as before, we have 
 \begin_inset Formula 
 \[
-\theta^{*}=Argmin\ v
+\EE[F(X)]=\EE\left[F(X+\theta)e^{-\theta.G-\frac{|\theta|^{2}}{2}}\right]
+\]
+
+\end_inset
+
+ and 
+\begin_inset Formula 
+\[
+Var[F(X)]=V(\theta)-\EE[F(X)]^{2}
+\]
+
+\end_inset
+
+ where 
+\begin_inset Formula 
+\[
+V(\theta)=\EE\left[F^{2}(X)e^{-\theta.G+\frac{|\theta|^{2}}{2}}\right]
+\]
+
+\end_inset
+
+for which we are looking for 
+\begin_inset Formula $\theta^{*}=Argmin_{\theta}V(\theta)$
+\end_inset
+
+.
+ By formal differentiation we have
+\begin_inset Formula 
+\[
+\nabla V(\theta)=\EE\left[F^{2}(X)e^{-\theta.G+\frac{|\theta|^{2}}{2}}(\theta-G)\right]
+\]
+
+\end_inset
+
+and 
+\begin_inset Formula 
+\[
+\nabla^{2}V(\theta)=\EE\left[F^{2}(X)e^{-\theta.G+\frac{|\theta|^{2}}{2}}(I_{d}+(\theta-G)(\theta-G)^{T})\right]
+\]
+
+\end_inset
+
+We can show that these quantities can be approached well by their empirical
+ estimators, noted 
+\begin_inset Formula $\nabla_{M}V(\theta)$
+\end_inset
+
+ and 
+\begin_inset Formula $\nabla^{2}V(\theta)$
+\end_inset
+
+ for a large integer 
+\begin_inset Formula $M>0$
+\end_inset
+
+.
+ 
+\begin_inset Formula $\theta^{*}$
+\end_inset
+
+can therefore be approached by 
+\begin_inset Formula $\theta_{M}^{*}$
+\end_inset
+
+, the unique solution of the equation 
+\begin_inset Formula $\nabla V_{M}(\theta)=0$
+\end_inset
+
+.
+ This leads to the following stochastic Newton-Raphson algorithm :
+\end_layout
+
+\begin_layout Itemize
+Choose 
+\begin_inset Formula $\theta_{0}\in\RR^{d}$
+\end_inset
+
+.
+ 
+\begin_inset Formula $p=0$
+\end_inset
+
+.
+ 
+\begin_inset Formula $\epsilon>0$
+\end_inset
+
+ small.
+\end_layout
+
+\begin_layout Itemize
+while 
+\begin_inset Formula $|\nabla_{M}V(\theta_{p})|>\epsilon|$
+\end_inset
+
+ do
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+\begin_inset Formula $\theta_{p+1}=\theta_{p}-(\nabla_{M}^{2}V(\theta_{p}))^{-1}\nabla_{M}V(\theta_{p})$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $p=p+1$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+We finally approximate 
+\begin_inset Formula $\EE[F(X)]$
+\end_inset
+
+ by 
+\begin_inset Formula 
+\[
+E_{M}(\theta_{M}^{*})=\frac{1}{M}{\displaystyle \sum_{i=1}^{M}f(G^{i}+\theta_{M}^{*})e^{-\theta_{M}^{*}.G-\frac{|\theta_{M}^{*}|^{2}}{2}}}
 \]
 
 \end_inset
@@ -312,17 +447,120 @@ We can prove that
 
 \end_layout
 
+\begin_layout Section
+An unconstrained Robbins-Monro approach
+\end_layout
+
 \begin_layout Subsection
-Stochastic Newton-Raphson Algorithm
+The Robbins-Monro principle
 \end_layout
 
 \begin_layout Standard
-In this part we will present the Newton-Raphson Algorithm : In the previsous
- paragraph we've seen that we can define
+We are looking for the unique minimum 
+\begin_inset Formula $\theta^{*}=argmin_{\theta\in\RR^{^{q}}}V(\theta)$
+\end_inset
+
+.
+ As we have no 
+\shape italic
+a priori
+\shape default
+ knowledge about the regularity of 
+\begin_inset Formula $F$
+\end_inset
+
+, as in previous section we can formally differentiate 
+\begin_inset Formula $(2)$
+\end_inset
+
+ :
+\begin_inset Formula 
+\[
+\nabla V(\theta)=\EE\left[F^{2}(X)\frac{p(X)}{p_{\theta}(X)}\frac{\nabla_{\theta}p_{\theta}(X)}{p_{\theta}(X)}\right]
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We then note the function 
+\begin_inset Formula $H(\theta,X)=F^{2}(X)\frac{p(X)}{p_{\theta}(X)}\frac{\nabla_{\theta}p_{\theta}(X)}{p_{\theta}(X)}$
+\end_inset
+
+, which gives us 
+\begin_inset Formula $\nabla V(\theta)=\EE\left[H(\theta,X)\right]$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+The Robbins-Monro algorithm then consists in finding 
+\begin_inset Formula $\theta^{*}$
+\end_inset
+
+ as the convergence point of the iterative procedure:
+\begin_inset Formula 
+\[
+\theta_{n+1}=\theta_{n}-\gamma_{n+1}H(\theta_{n},X_{n+1})
+\]
+
+\end_inset
+
+ with 
+\begin_inset Formula $(\gamma_{n})_{n\geq0}$
+\end_inset
+
+ a step sequence (appropriately) decreasing to 0 and 
+\begin_inset Formula $(X_{n})_{n\geq0}$
+\end_inset
+
+ a sequence of i.i.d random variables with the same law as 
+\begin_inset Formula $X$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+To converge to 
+\begin_inset Formula $\theta^{*}$
+\end_inset
+
+, this procedure requires several assumptions, one of them being quite restricti
+ve : the sub-linear growth assumption in quadratic mean (NEC : Non-Explosion
+ Condition)
+\begin_inset Formula 
+\[
+\forall\theta\in\RR^{d},\hphantom{}||H(\theta,X)||_{2}\leq C(1+|\theta|)
+\]
+
+\end_inset
+
+In practice, this condition is almost never satisfied in our framework (due
+ to the behaviour of 
+\begin_inset Formula $\frac{p(x)}{p_{\theta}(x)}$
+\end_inset
+
+ as 
+\begin_inset Formula $\theta$
+\end_inset
+
+ goes to infinity.
+ There is therefore a need of additional work to derive a extended version
+ of this algorithm, which converge to 
+\begin_inset Formula $\theta^{*}$
+\end_inset
+
+ a.s.
+ The authors provide a method in their article to tackle this problem.
 \end_layout
 
 \begin_layout Subsection
-Robbins-Monro Unconstrained Algorithm
+Robbins-Monro algorithm
 \end_layout
 
 \begin_layout Theorem
@@ -455,7 +693,7 @@ The convergence also holds in
 \end_layout
 
 \begin_layout Subsection
-Translation of the mean
+Unconstraint extension
 \end_layout
 
 \begin_layout Standard
@@ -566,11 +804,109 @@ a.s.
 
 \end_layout
 
+\begin_layout Chapter
+Importance Simpling on finite-dimensional setting
+\end_layout
+
 \begin_layout Section
+Framework of study
+\end_layout
+
+\begin_layout Standard
+As using the framework defined before in the particular case where 
+\begin_inset Formula $G\backsim\mathcal{N}(0,I_{d})$
+\end_inset
+
+, and 
+\begin_inset Formula $\theta\in\RR^{d}$
+\end_inset
+
+, (1) gives us: 
+\begin_inset Formula 
+\[
+\EE[F(G)]=\EE\left[F(G+\theta)e^{-\theta.G-\frac{|\theta|^{2}}{2}}\right]
+\]
+
+\end_inset
+
+The variance of our new quantity is : 
+\begin_inset Formula 
+\begin{eqnarray*}
+ &  & \forall\theta\in\RR^{d},\quad Var\left(F(G+\theta)e^{-\theta.G-\frac{|\theta|^{2}}{2}}\right)=v(\theta)-\EE[F(G)]^{2}\\
+ &  & where\ v(\theta)=\EE\left[F^{2}(G)e^{-\theta.G-\frac{|\theta|^{2}}{2}}\right]
+\end{eqnarray*}
+
+\end_inset
+
+We can prove that if our payoff satisfy the condition 
+\begin_inset Formula $\PP(F^{2}(G)>0)>0$
+\end_inset
+
+, the 
+\begin_inset Formula $v(\theta)$
+\end_inset
+
+ defined before verify he following relation: 
+\begin_inset Formula 
+\[
+\lim_{|\theta|\to+\infty}v(\theta)=+\infty
+\]
+
+\end_inset
+
+Finaly, if 
+\begin_inset Formula $\forall R>0$
+\end_inset
+
+, 
+\begin_inset Formula $\EE\left[|G|^{2}F^{2}(G)e^{R|G|}\right]<+\infty$
+\end_inset
+
+ concider 
+\begin_inset Formula $\partial v$
+\end_inset
+
+ and 
+\begin_inset Formula $\partial^{2}v$
+\end_inset
+
+ defined as follows: 
+\begin_inset Formula 
+\begin{eqnarray*}
+ &  & \partial v=\EE\left[F^{2}(G)(\theta-G)e^{-\theta.G-\frac{|\theta|^{2}}{2}}\right]\\
+ &  & \partial^{2}v=\EE\left[F^{2}(G)\{I_{d}+(\theta-G)(\theta-G)^{T}\}e^{-\theta.G-\frac{|\theta|^{2}}{2}}\right]
+\end{eqnarray*}
+
+\end_inset
+
+We can prove that 
+\begin_inset Formula $\exists!\ \theta^{*}$
+\end_inset
+
+ difined by: 
+\begin_inset Formula 
+\[
+\theta^{*}=Argmin\ v
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Application to European payoffs
+\end_layout
+
+\begin_layout Section
+Numerical results
+\end_layout
+
+\begin_layout Chapter
 Adaptive variance reduction for diffusions
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Section
 Framework and preliminaries
 \end_layout
 
@@ -580,18 +916,6 @@ We consider a d-dimensional Ito process
 \end_inset
 
  solution to the stochastic differential equation (SDE): 
-\begin_inset Formula 
-\begin{equation}
-dX_{t}=b(t,X_{t})dt+\sigma(t,X_{t})dW_{t},\quad X_{0}=x\in\RR^{d},
-\end{equation}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsection
-Design of the algorithm
 \end_layout
 
 \begin_layout Theorem
@@ -674,8 +998,12 @@ Let
 
 \end_layout
 
+\begin_layout Section
+Application to path-dependant payoffs
+\end_layout
+
 \begin_layout Subsection
-Legendre polynomials
+Legendre polynomial basis
 \end_layout
 
 \begin_layout Standard
@@ -707,7 +1035,11 @@ defined by:
 \end_layout
 
 \begin_layout Subsection
-Down & In Call option
+Haar polynomial basis
+\end_layout
+
+\begin_layout Subsection
+Barrier option : Down & In Call
 \end_layout
 
 \begin_layout Standard
@@ -739,6 +1071,10 @@ F(S_{T})=\left(S_{T}-K\right)^{+}\mathds{1}_{\left\{ \min\limits _{\substack{0\l
 \end_inset
 
 
+\end_layout
+
+\begin_layout Section
+Results
 \end_layout
 
 \end_body
