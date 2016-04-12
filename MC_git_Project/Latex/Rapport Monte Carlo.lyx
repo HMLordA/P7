@@ -1330,8 +1330,25 @@ Numerical results
 Adaptive variance reduction for diffusions
 \end_layout
 
+\begin_layout Standard
+We will then study the method in a more general context extended to stochastic
+ processes (instead of random gaussian variables).
+ This will allow us to consider the approach for path-dependant payoffs
+ like barrier options.
+ We have therefore to consider time-dependant, possibly stochastic shift
+ processes 
+\begin_inset Formula $\Theta$
+\end_inset
+
+(instead of constant shifts like in previous section).
+\end_layout
+
 \begin_layout Section
 Framework and preliminaries
+\end_layout
+
+\begin_layout Subsection
+Derivation of the shifting problem
 \end_layout
 
 \begin_layout Standard
@@ -1340,6 +1357,165 @@ We consider a d-dimensional Ito process
 \end_inset
 
  solution to the stochastic differential equation (SDE): 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $dX_{t}=b(t,X^{t})dt+\sigma(t,X^{t})dW_{t},\quad X_{0}=x\in\RR^{d}$
+\end_inset
+
+ (
+\begin_inset Formula $E_{b,\sigma,W}$
+\end_inset
+
+) 
+\end_layout
+
+\begin_layout Standard
+where 
+\begin_inset Formula $W=(W_{t})_{t\in[0,T]}$
+\end_inset
+
+ is a q-dimensional brownian motion, 
+\begin_inset Formula $X^{t}=(X_{t\wedge s})_{s\in[0,T]}$
+\end_inset
+
+, 
+\begin_inset Formula $b:[0,T]x(C([0,T],\RR^{d}))\rightarrow\RR^{d}$
+\end_inset
+
+and 
+\begin_inset Formula $\sigma:[0,T]x(C([0,T],\RR^{d}))\rightarrow M(d,q)$
+\end_inset
+
+ are measurable with respect to the canonical 
+\begin_inset Formula $\sigma$
+\end_inset
+
+-field.
+\end_layout
+
+\begin_layout Standard
+The aim is again to compute 
+\begin_inset Formula $\EE[F(X)]$
+\end_inset
+
+ with a minimal variance.
+ In this functional setting, Girsanov's theorem plays the role of the invariance
+ of Lebesgue's measure by translation.
+ The translation process considered is of the form 
+\begin_inset Formula $\Theta(t,X^{t})$
+\end_inset
+
+ where 
+\begin_inset Formula $\Theta(t,X^{t})=\varphi(t,\xi^{t})\theta_{t}$
+\end_inset
+
+ with 
+\begin_inset Formula $\xi\in C([0,T],\RR^{d})$
+\end_inset
+
+ and 
+\begin_inset Formula $\varphi:[0,T]x(C([0,T],\RR^{d}))\rightarrow M(q,p)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+It is possible to show that with hypotheses similar to Lipschitz for the
+ functions 
+\begin_inset Formula $b$
+\end_inset
+
+ and 
+\begin_inset Formula $\sigma$
+\end_inset
+
+, the SDE admits a unique solution 
+\begin_inset Formula $X_{t}$
+\end_inset
+
+.
+ It is also possible to show that, with the notations 
+\begin_inset Formula 
+\[
+\Theta_{t}=\Theta(t,X^{t}),\quad\Theta_{t}^{(\theta)}=\Theta(t,X^{(\theta),t}),\quad\Theta_{t}^{(-\theta)}=\Theta(t,X^{(-\theta),t})
+\]
+
+\end_inset
+
+ where 
+\begin_inset Formula $X^{\pm\theta}$
+\end_inset
+
+ represents the solution to (
+\begin_inset Formula $E_{b,\sigma\pm\sigma\Theta,\sigma,W}$
+\end_inset
+
+), that 
+\begin_inset Formula 
+\[
+\EE[F(X)]=\EE\left[F(X^{(\theta)})^{2}e^{-\int_{0}^{T}<\Theta_{s}^{(\theta)},dW_{s}>-\frac{1}{2}||\Theta^{(\theta)}||_{L_{T,q}^{2}}^{2}}\right]
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We are looking for 
+\begin_inset Formula $\Theta^{*}=\underset{\theta\in L_{T,p}^{2}}{min}V(\theta)$
+\end_inset
+
+ with 
+\begin_inset Formula $V(\theta)=\EE\left[F^{2}(X^{(\theta)})e^{-2\int_{0}^{T}<\Theta_{s}^{(\theta)},dW_{s}>-\frac{1}{2}||\Theta^{(\theta)}||_{L_{T,q}^{2}}^{2}}\right]$
+\end_inset
+
+.
+ By a result equivalent to the change of probability in this setting, we
+ can obtain 
+\begin_inset Formula 
+\[
+V(\theta)=\EE\left[F^{2}(X)e^{-2\int_{0}^{T}<\Theta_{s},dW_{s}>-\frac{1}{2}||\Theta||_{L_{T,q}^{2}}^{2}}\right]
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Projection on polynomials basis
+\end_layout
+
+\begin_layout Standard
+The searched process 
+\begin_inset Formula $\Theta^{*}$
+\end_inset
+
+ is infinite-dimensional in theory.
+ In practice the only way to implement this algorithm is to restrict the
+ problem on some finite-dimensional subspace.
+ We will consider different polynomials basis of the space
+\begin_inset Formula $L^{2}$
+\end_inset
+
+ and will approach 
+\begin_inset Formula $\Theta^{*}$
+\end_inset
+
+ by 
+\begin_inset Formula $\bar{\Theta}^{*}$
+\end_inset
+
+the solution of the minimisation problem of 
+\begin_inset Formula $V$
+\end_inset
+
+ , projected on these polynomial basis.
+ We can now present the equivalent of Theorem 2.
+ on this setting.
 \end_layout
 
 \begin_layout Theorem
@@ -1396,7 +1572,7 @@ for some positive exponent
 \end_inset
 
  spanned by an orthonormal basis 
-\begin_inset Formula $(e1,...,em)$
+\begin_inset Formula $(e_{1},...,e_{m})$
 \end_inset
 
 .
@@ -1419,7 +1595,164 @@ Let
 
 \end_inset
 
+where 
+\begin_inset Formula $\gamma=(\gamma_{n})_{n\geq1}$
+\end_inset
 
+ satisfies the same property as in Theorem 1., 
+\begin_inset Formula $(W^{(n)})_{n\geq1}$
+\end_inset
+
+is a sequence of independant Brownian motions for which 
+\begin_inset Formula $X^{(-\theta_{n})}$
+\end_inset
+
+ is a strong solution to (
+\begin_inset Formula $E_{b,\sigma\pm\sigma\Theta,\sigma,W^{(n+1)}}$
+\end_inset
+
+), and for every standard brownian motion W, every adapted process 
+\begin_inset Formula $\xi$
+\end_inset
+
+,
+\begin_inset Formula 
+\[
+<H_{\lambda,\eta}(\theta,\xi,W),e_{i}>_{L_{T,p}^{2}}=\Psi_{\lambda,\eta}(\theta,\xi)F^{2}(\xi)e^{||\Theta(.,\xi)||_{L_{T,q}^{2}}}(2<\Theta(.,\xi),\varphi(.,\xi)e_{i}>_{L_{T,q}^{2}}-\int_{0}^{T}<\varphi(s,\xi^{s})e_{i}(s),dW_{s}>)
+\]
+
+\end_inset
+
+ where for 
+\begin_inset Formula $\eta>0$
+\end_inset
+
+,
+\begin_inset Formula 
+\begin{eqnarray*}
+\Psi_{\lambda,\eta}(\theta,\xi) & = & \begin{cases}
+\mbox{\ensuremath{\frac{e^{-||\varphi||_{\infty}||\theta||_{L^{2}}}}{1+||\varphi(.,\xi)\theta||_{L^{2}}^{2\lambda+\eta}}}} & if\;\sigma\;bounded\\
+e^{-(||\varphi||_{\infty}+\eta)||\theta||_{L^{2}}} & if\;\sigma\;unbounded
+\end{cases}
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Then the recursive sequence (
+\begin_inset Formula $\theta_{n})_{n\geq1}$
+\end_inset
+
+ converges to a 
+\begin_inset Formula $L^{2}$
+\end_inset
+
+random variable 
+\begin_inset Formula $\theta^{*}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Simplification of our problem
+\end_layout
+
+\begin_layout Standard
+For sake of simplicity, we will consider in our case 
+\begin_inset Formula $\varphi\equiv Id$
+\end_inset
+
+, which gives us for 
+\begin_inset Formula $\Theta$
+\end_inset
+
+a deterministic function 
+\begin_inset Formula $\Theta(t,X^{(\pm\theta),t})=\theta_{t}$
+\end_inset
+
+.
+ We will also consider 
+\begin_inset Formula $\sigma$
+\end_inset
+
+ and 
+\begin_inset Formula $b$
+\end_inset
+
+ depending only of the current value of 
+\begin_inset Formula $X$
+\end_inset
+
+ i.e.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\sigma(t,X^{t})=\sigma(X_{t})$
+\end_inset
+
+ and 
+\begin_inset Formula $b(t,X^{t})=b(X_{t})$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+We have therefore, similar to section 2,
+\begin_inset Formula $\nabla V(\theta)=\EE[H(\theta,X^{(-\theta)},W)]$
+\end_inset
+
+, and so in our case for 
+\begin_inset Formula $\psi\in L_{T,p}^{2}$
+\end_inset
+
+ 
+\begin_inset Formula 
+\[
+<\nabla V(\theta),\psi>_{L_{T,p}^{2}}=\EE[F^{2}(X^{(-\theta)})e^{||\theta||_{L^{2}}^{2}}(2<\theta,\psi>_{L_{T,p}^{2}}-\int_{0}^{T}<\varphi_{s},dW_{s}>]
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For an orthonormal basis 
+\begin_inset Formula $(e_{1},...,e_{m})$
+\end_inset
+
+ of 
+\begin_inset Formula $L_{T,p}^{2}$
+\end_inset
+
+, we can write 
+\begin_inset Formula $\theta_{t}={\displaystyle \sum_{i=1}^{m}\theta_{i}e_{i}}$
+\end_inset
+
+, with (
+\begin_inset Formula $\theta_{1},\ldots,\theta_{m})\in\RR^{m}$
+\end_inset
+
+.
+ We have there also an explicit formula for the restriction of 
+\begin_inset Formula $H$
+\end_inset
+
+ on this basis: 
+\begin_inset Formula 
+\[
+<H(\theta,X^{(-\theta)},W),e_{i}>_{L_{T,p}^{2}}=F^{2}(X^{(-\theta)})e^{||\theta||_{L^{2}}^{2}}(2<\theta,e_{i}>_{L_{T,p}^{2}}-\int_{0}^{T}<e_{i}(s),dW_{s}>_{L_{T,p}^{2}}]
+\]
+
+\end_inset
+
+ which gives us with the recursive relation of Theorem 3.
+ an implementable methodology for the algorithm.
 \end_layout
 
 \begin_layout Section
@@ -1427,19 +1760,15 @@ Application to path-dependant payoffs
 \end_layout
 
 \begin_layout Subsection
+Polynomials basis used 
+\end_layout
+
+\begin_layout Subsubsection
 Legendre polynomial basis
 \end_layout
 
 \begin_layout Standard
-Deterministic case with a trivial driver 
-\begin_inset Formula $\varphi=Id$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-We consider the polynomial basis of 
+Legendre basis used is a polynomial basis of 
 \begin_inset Formula $L^{2}([0,1],\RR)$
 \end_inset
 
@@ -1458,12 +1787,36 @@ defined by:
 
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Subsubsection
 Haar polynomial basis
 \end_layout
 
+\begin_layout Standard
+Haar basis used is a polynomial basis of 
+\begin_inset Formula $L^{2}([0,1],\RR)$
+\end_inset
+
+, defined by 
+\begin_inset Formula 
+\[
+\forall n\geq0,\forall k=0,...,2^{n}-1,\forall t\in[0,1],\quad\psi_{n,k}=2^{\frac{n}{2}}\psi(2^{n}t-k)
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $\psi(t)=\begin{cases}
+1 & if\;t\in[0,\frac{1}{2})\\
+-1 & if\;t\in[\frac{1}{2},1)\\
+0 & otherwise
+\end{cases}$
+\end_inset
+
+.
+\end_layout
+
 \begin_layout Subsection
-Barrier option : Down & In Call
+Payoff considered :Barrier option (Down & In Call)
 \end_layout
 
 \begin_layout Standard
@@ -1484,7 +1837,8 @@ A Down
 \end_inset
 
  In Call option of strike K and barrier L is a Call of strike K which is
- activated when the underlying X moves down and hits the barrier L.
+ activated when the underlying X moves down and hits the barrier L at a
+ point of life of the product.
  The payoff of such a European option is defined by: 
 \begin_inset Formula 
 \[
@@ -1497,8 +1851,28 @@ F(S_{T})=\left(S_{T}-K\right)^{+}\mathds{1}_{\left\{ \min\limits _{\substack{0\l
 
 \end_layout
 
+\begin_layout Standard
+\begin_inset Formula $\tilde{F}$
+\end_inset
+
+ ?
+\end_layout
+
 \begin_layout Section
 Results
+\end_layout
+
+\begin_layout Standard
+- Call for benchmark
+\end_layout
+
+\begin_layout Standard
+-Graphe of the variance reduction, depending on the number of steps, the
+ number of theta, the types of polynom
+\end_layout
+
+\begin_layout Standard
+-Graphe of the thetas.
 \end_layout
 
 \begin_layout Chapter*

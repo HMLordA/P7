@@ -12,24 +12,23 @@
 #include <stdio.h>
 #include <cmath>
 #include <boost/numeric/ublas/vector.hpp>
+#include "Robbins_Monro_Payoff.h"
 
-typedef boost::numeric::ublas::vector<double> Vector;
-
-class Robbins_Monro_Call{
+class Robbins_Monro_Call:public Robbins_Monro_Payoff{
 
 public:
     
     Robbins_Monro_Call();
-    Robbins_Monro_Call(double S0, double K, double T, double vol, double r);
+    Robbins_Monro_Call(double S0, double K, double my_T, double vol, double my_r);
     
-    double Payoff_Call(const Vector & G) const;
-    double StockBS(const Vector &  G) const;
+    virtual double Payoff(const Vector & G) const override;
+    virtual double StockBS(const Vector &  G) const override;
     
     double S0;
     double K;
-    double T;
+    //double T;
     double vol;
-    double r;
+    //double r;
 
 };
 

@@ -39,7 +39,7 @@ Vector Robbins_Monro_Algo(int M, double alpha, double gamma0, Vector theta, doub
     double Sreal2=0.0;
 	double Sreal1Drift=0.0;
     double Sreal2Drift=0.0;
-	double thetaDrift = 1.6;
+	double thetaDrift = 1.6;//= 1.6;
 //    double Sth1=0.0;
 //    double Sth2=0.0;
 //    double th=2.1963;
@@ -49,7 +49,10 @@ Vector Robbins_Monro_Algo(int M, double alpha, double gamma0, Vector theta, doub
         g = G();
         if (n == counter)
 		{
-			cout <<"Theta at "<<n<<" : " <<theta[0]<<endl;
+			cout <<"Theta at "<<n<<" : ";
+			for (unsigned int ll=0;ll<theta.size();ll++)
+				cout<<theta[ll]<<",";
+			cout<<endl;
 			if (n < 100)
 				counter+=1;
 			else
@@ -74,7 +77,10 @@ Vector Robbins_Monro_Algo(int M, double alpha, double gamma0, Vector theta, doub
         
     }
     
-    cout <<"Le theta optimal : "<< theta << endl;
+    cout <<"Le theta optimal : ";
+	for (unsigned int ll=0;ll<theta.size();ll++)
+		cout<<theta[ll]<<",";
+	cout<<endl;
     
 	double meanSimple = exp(-Obj.r*Obj.T) * Sreal1/M;
 	double meanDrift = exp(-Obj.r*Obj.T) * Sreal1Drift/M;

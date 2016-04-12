@@ -10,9 +10,9 @@
 
 Robbins_Monro_Call::Robbins_Monro_Call(){}
 
-Robbins_Monro_Call::Robbins_Monro_Call(double S0, double K, double T, double vol, double r):S0(S0), K(K), T(T), vol(vol), r(r){}
+Robbins_Monro_Call::Robbins_Monro_Call(double S0, double K, double my_T, double vol, double my_r):S0(S0), K(K), vol(vol){T=my_T;r=my_r;}
 
-double Robbins_Monro_Call::Payoff_Call(const Vector & G) const {
+double Robbins_Monro_Call::Payoff(const Vector & G) const {
     
     double S = StockBS(G);
     
