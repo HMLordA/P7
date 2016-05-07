@@ -2,8 +2,8 @@
 //  Tools.h
 //  MC_git_Project
 //
-//  Created by Nazar KOSTYUCHYK on 25/03/2016.
-//  Copyright © 2016 Nazar KOSTYUCHYK. All rights reserved.
+//  Created by Nazar KOSTYUCHYK - JC DIETRICH on 25/03/2016.
+//  Copyright © 2016 Nazar KOSTYUCHYK - JC DIETRICH. All rights reserved.
 //
 
 #ifndef Tools_h
@@ -30,11 +30,8 @@ public:
     
     LegendreCarre(int degre): l(degre) {}
     
-    double value(double x) const{
-        
-        return pow(boost::math::legendre_p(l, x),2);
-        //return boost::math::legendre_p(l, x);
-        
+    double value(double x) const{        
+        return pow(boost::math::legendre_p(l, x),2);     
     }
     
 private:
@@ -97,14 +94,8 @@ inline value_type integral1P(const value_type a,
     
     value_type h = (b - a);
 
-	//JCD : add if a==b
-	/*if (b==a)
-		return 0.0;*/
-
-    //value_type I = (pow(th.value(a),2.0) + pow(th.value(b),2.0)) * (h / 2);
     value_type I = (th.value(a) + th.value(b)) * (h / 2);
     
-    //for(unsigned k = 0U; k < 8U; k++)
     for(unsigned k = 0U; k < iterations; k++)
     {
         h /= 2;
@@ -112,7 +103,6 @@ inline value_type integral1P(const value_type a,
         value_type sum(0);
         for(unsigned j = 1U; j <= n; j++)
         {
-           // sum += pow(th.value(a + (value_type((j * 2) - 1) * h)),2.0);
             sum += th.value(a + (value_type((j * 2) - 1) * h));
         }
         
@@ -120,7 +110,6 @@ inline value_type integral1P(const value_type a,
         I = (I / 2) + (h * sum);
 
 		const value_type ratio     = I0 / I;
-        //const value_type ratio     = /*JCD : if we have exactly the same we consider the integral is 0, avoiding a division by 0 */ (I0==I) ? 1.0 : I0 / I;
         const value_type delta     = ratio - 1;
         const value_type delta_abs = ((delta < 0) ? -delta : delta);
         
@@ -148,10 +137,7 @@ inline value_type integralSTO(
     list_itr_plus_1++;
     for (auto list_itr=proc.begin();list_itr_plus_1!=proc.end();++list_itr)
     {
-        //res += (th.value(list_itr_plus_1->first)-th.value(list_itr->first)) * (list_itr_plus_1->second-list_itr->second);
-        //res += 0.5*(th.value(list_itr_plus_1->first)+th.value(list_itr->first)) * (list_itr_plus_1->second-list_itr->second);
-        //res += /*0.5**/(th.value(list_itr_plus_1->first)/*+th.value(list_itr->first)*/) * (list_itr_plus_1->second-list_itr->second);
-        res += /*0.5**/(th.value(list_itr->first)/*+th.value(list_itr->first)*/) * (list_itr_plus_1->second-list_itr->second);
+        res += (th.value(list_itr->first)) * (list_itr_plus_1->second-list_itr->second);
 		list_itr_plus_1++;
     }
     

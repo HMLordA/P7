@@ -2,8 +2,8 @@
 //  Theta.c
 //  MC_git_Project
 //
-//  Created by Nazar KOSTYUCHYK on 25/03/2016.
-//  Copyright © 2016 Nazar KOSTYUCHYK. All rights reserved.
+//  Created by Nazar KOSTYUCHYK - JC DIETRICH on 25/03/2016.
+//  Copyright © 2016 Nazar KOSTYUCHYK - JC DIETRICH. All rights reserved.
 //
 
 #include "Theta.h"
@@ -11,7 +11,7 @@
 static double* pow_array = 0;
 static double* half_pow_array = 0;
 
-#define MAX_DIM_THETA 4
+#define MAX_DIM_THETA 4 //Max dimension for Haar theta vector: 2^MAX_DIM_THETA
 
 double Phi_n_k(double n, double k, double t)
 {
@@ -29,15 +29,11 @@ double Phi_n_k(double n, double k, double t)
 		}
 	}
 	double phi = 0.0;
-	//double t_tilda = pow_array[(int)k]*t-n;
 	double t_tilda = pow_array[(int)n]*t-k;
 	if (t_tilda>=0 && t_tilda<0.5)
 		phi = 1.0;
 	else if (t_tilda>=0.5 && t_tilda<1)
 		phi = -1.0;
 	
-	//if (phi !=0.0) 
-		return half_pow_array[(int)n]*phi;
-	//else
-	//	return 0.0;
+	return half_pow_array[(int)n]*phi;
 }

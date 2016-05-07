@@ -2,8 +2,8 @@
 //  Theta.h
 //  MC_git_Project
 //
-//  Created by Nazar KOSTYUCHYK on 25/03/2016.
-//  Copyright © 2016 Nazar KOSTYUCHYK. All rights reserved.
+//  Created by Nazar KOSTYUCHYK - JC DIETRICH on 25/03/2016.
+//  Copyright © 2016 Nazar KOSTYUCHYK - JC DIETRICH. All rights reserved.
 //
 
 #ifndef Theta_h
@@ -102,6 +102,7 @@ public:
 };
 
 
+//returns the value of Haar polynom for parameters n and k, at time t
 double Phi_n_k(double n, double k, double t);
 
 class Theta_Haar: public Theta{
@@ -114,7 +115,6 @@ public:
 
 	virtual void setTh(vector<double> & theta) override {
 		Theta::setTh(theta);
-		//n = int(log((double)theta.size())/log(2.0)); 
 		n = int(log(double(theta.size()-1)+1.0)/log(2.0))-1;
 	}
 
@@ -123,8 +123,7 @@ public:
     double value(double t) const override {
         
         double theta=0.0;
-		//double N = getTh().size();
-		theta += getTh()[0]; //constant first
+		theta += getTh()[0]; //first theta parameter is the constant
 		int counter = 1;
 		for (int current_n=0;current_n<=n;current_n++)
 		{
@@ -155,7 +154,6 @@ public:
 
 	virtual void setTh(vector<double> & theta) override {
 		Theta::setTh(theta);
-		//n = int(log((double)theta.size())/log(2.0)); 
 		n = int(log(double(theta.size()-1)+1.0)/log(2.0))-1;
 	}
     
@@ -169,7 +167,6 @@ public:
 		{
 			double j = pow(2.0,current_n)-1; 
 			for(int current_j=0; current_j<=j; current_j++){   
-				//for(unsigned int j = 0; j < getTh().size(); j++){
 				theta += getTh()[counter] * Phi_n_k(current_n,current_j,t);
 				counter++;
 			}

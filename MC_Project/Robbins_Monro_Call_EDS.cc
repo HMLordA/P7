@@ -2,8 +2,8 @@
 //  Robbins_Monro_Call_EDS.cpp
 //  MC_git_Project
 //
-//  Created by Nazar KOSTYUCHYK on 18/03/2016.
-//  Copyright © 2016 Nazar KOSTYUCHYK. All rights reserved.
+//  Created by Nazar KOSTYUCHYK - JC DIETRICH on 18/03/2016.
+//  Copyright © 2016 Nazar KOSTYUCHYK - JC DIETRICH. All rights reserved.
 //
 
 #include "Robbins_Monro_Call_EDS.h"

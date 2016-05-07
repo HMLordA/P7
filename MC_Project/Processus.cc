@@ -2,8 +2,8 @@
 //  Processus.cpp
 //  EK_MC
 //
-//  Created by Nazar KOSTYUCHYK on 19/02/2016.
-//  Copyright © 2016 Nazar KOSTYUCHYK. All rights reserved.
+//  Created by Nazar KOSTYUCHYK - JC DIETRICH on 19/02/2016.
+//  Copyright © 2016 Nazar KOSTYUCHYK - JC DIETRICH. All rights reserved.
 //
 
 #include "Processus.h"
@@ -190,7 +190,7 @@ Ppoisson_compose::result_type Ppoisson_compose::operator()() {
     state val_k = state(0,0);
     value.push_back(val_k);
     N();
-    // probleme au niveau de définitions des lists et itherators dans la STL
+    // probleme au niveau de définitions des lists et iterators dans la STL
     // faire attention et ne pas passer en direct
     std::list<std::pair<double,unsigned>> Nvalues = N.current();
     

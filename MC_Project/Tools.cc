@@ -2,8 +2,8 @@
 //  Tools.cc
 //  MC_git_Project
 //
-//  Created by Nazar KOSTYUCHYK on 25/03/2016.
-//  Copyright © 2016 Nazar KOSTYUCHYK. All rights reserved.
+//  Created by Nazar KOSTYUCHYK - JC DIETRICH on 25/03/2016.
+//  Copyright © 2016 Nazar KOSTYUCHYK - JC DIETRICH. All rights reserved.
 //
 
 #include "Tools.h"

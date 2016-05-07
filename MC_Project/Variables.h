@@ -2,8 +2,8 @@
 //  Variables.h
 //  EK_MC
 //
-//  Created by Nazar KOSTYUCHYK on 18/02/2016.
-//  Copyright © 2016 Nazar KOSTYUCHYK. All rights reserved.
+//  Created by Nazar KOSTYUCHYK - JC DIETRICH on 18/02/2016.
+//  Copyright © 2016 Nazar KOSTYUCHYK - JC DIETRICH. All rights reserved.
 //
 
 #include <boost/random/mersenne_twister.hpp>
@@ -17,12 +17,6 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/cholesky.hpp>
 #include <boost/numeric/ublas/io.hpp>
-
-/*
-#include <gsl/gsl_matrix.h>
-#include <gsl/gsl_linalg.h>
-#include <gsl/gsl_blas.h>
-*/
 
 typedef boost::mt19937 generator;
 typedef boost::normal_distribution<> normal_dist;
@@ -117,29 +111,7 @@ private:
     Matrix sigmaSqrt;
 };
 
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@___GAUSSIAN_VECTOR___@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-/* OLD Version
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@___GAUSSIAN_VECTOR___@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-// Variable aléatoire Gausienne
-class Gaussian_Vector : public Var_alea <std::vector<double>> {
-    
-public:
-    // Constructeur qui peut jouer le role du constructeur par default
-    Gaussian_Vector(gsl_vector * mu = nullptr, gsl_matrix * sigma = nullptr, int size = 0);
-    
-    // Surcharge de l'opérateur: Simulation d'une variable gaussienne
-    std::vector<double> operator()();
-    
-private:
-    int size;
-    gsl_vector * mu;
-    gsl_matrix * sigma;
-    gsl_matrix * sigmaSqrt;
-};
-
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@___GAUSSIAN_VECTOR___@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-*/
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@___EXPO___@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 // Variable aléatoire Exponentielle

@@ -2,8 +2,8 @@
 //  Robbins_Monro_BestOfCall.h
 //  MC_Project
 //
-//  Created by Nazar KOSTYUCHYK on 02/03/2016.
-//  Copyright © 2016 Nazar KOSTYUCHYK. All rights reserved.
+//  Created by Nazar KOSTYUCHYK - JC DIETRICH on 02/03/2016.
+//  Copyright © 2016 Nazar KOSTYUCHYK - JC DIETRICH. All rights reserved.
 //
 
 #ifndef Robbins_Monro_BestOfCall_h
@@ -29,10 +29,8 @@ public:
     double S01;
     double S02;
     double K;
-    //double T;
     double vol1;
     double vol2;
-    //double r;
 
 };
 

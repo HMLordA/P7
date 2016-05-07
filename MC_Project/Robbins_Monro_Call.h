@@ -2,8 +2,8 @@
 //  Robbins_Monro_Call.h
 //  MC_Project
 //
-//  Created by Nazar KOSTYUCHYK on 01/03/2016.
-//  Copyright © 2016 Nazar KOSTYUCHYK. All rights reserved.
+//  Created by Nazar KOSTYUCHYK - JC DIETRICH on 01/03/2016.
+//  Copyright © 2016 Nazar KOSTYUCHYK - JC DIETRICH. All rights reserved.
 //
 
 #ifndef Robbins_Monro_Call_h
@@ -26,9 +26,7 @@ public:
     
     double S0;
     double K;
-    //double T;
     double vol;
-    //double r;
 
 };
 

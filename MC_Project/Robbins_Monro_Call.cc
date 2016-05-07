@@ -2,8 +2,8 @@
 //  Robbins_Monro_Call.cpp
 //  MC_Project
 //
-//  Created by Nazar KOSTYUCHYK on 01/03/2016.
-//  Copyright © 2016 Nazar KOSTYUCHYK. All rights reserved.
+//  Created by Nazar KOSTYUCHYK - JC DIETRICH on 01/03/2016.
+//  Copyright © 2016 Nazar KOSTYUCHYK - JC DIETRICH. All rights reserved.
 //
 
 #include "Robbins_Monro_Call.h"
@@ -16,9 +16,9 @@ double Robbins_Monro_Call::Payoff(const Vector & G) const {
     
     double S = StockBS(G);
     
-    return (S-K>0)?S-K:0;
-	//return (S-K>0)?1:0;
-	//return (K-S>0)?K-S:0;
+    return (S-K>0)?S-K:0; //Call
+	//return (S-K>0)?1:0; //Digital
+	//return (K-S>0)?K-S:0; //Put
     
 }
 

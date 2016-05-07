@@ -2,8 +2,8 @@
 //  Processus.hpp
 //  EK_MC
 //
-//  Created by Nazar KOSTYUCHYK on 19/02/2016.
-//  Copyright © 2016 Nazar KOSTYUCHYK. All rights reserved.
+//  Created by Nazar KOSTYUCHYK - JC DIETRICH on 19/02/2016.
+//  Copyright © 2016 Nazar KOSTYUCHYK - JC DIETRICH. All rights reserved.
 //
 
 #ifndef Processus_h
@@ -159,7 +159,6 @@ public:
     result_type operator()(){
         
         Brownian::operator()();
-        //std::transform(value.begin(), value.end(), value_BS_Drift.begin(), bs);
 		auto bs_drift_it = value_BS_Drift.begin();
 		auto it_prec = *value.begin();
 		double value_prec = bs.getX0();
@@ -176,7 +175,6 @@ public:
     
     result_type rediffusion(){
     
-        //std::transform(value.begin(), value.end(), value_BS_Drift.begin(), bs);
        	auto bs_drift_it = value_BS_Drift.begin();
 		auto it_prec = *value.begin();
 		double value_prec = bs.getX0();
@@ -206,17 +204,11 @@ private:
         
         Fun_bs(double x0, double r, double s, S* thet):x0(x0), s(s), mu(r-0.5*s*s), theta(thet) {}
         
-        //state operator()(const state & x){
         state operator()(const state & x, const state & x_prec, double value_prec){
-            ///std::cout << theta.value(x.first) <<std::endl;
-			//JCD : add of the s before theta (vol was missing)
-			//state temp = state(x.first, x0*exp((mu*x.first-s*(integral1P(0.0, x.first, 0.01, theta))) + s*x.second));
-			//state res = state(x.first, value_prec*exp((mu*(x.first-x_prec.first)-s*(integral1P(x_prec.first, x.first, 0.01, theta))) + s*(x.second-x_prec.second)));
 			if (x.first==0)
 				return state(x.first, x0);
 			else
 				return state(x.first, value_prec*exp((mu*(x.first-x_prec.first)-s*(integral1P(x_prec.first, x.first, 0.01, *theta,3U))) + s*(x.second-x_prec.second)));
-			//return state(x.first, x0*exp((mu*x.first-s*(integral1P(0.0, x.first, 0.01, theta))) + s*x.second));
         }
         
         void setTheta(S* thet){
@@ -288,42 +280,6 @@ protected:
 };
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@___POISSON___@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@___POISSON BIS___@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-/*
-class Ppoisson_bis : public Processus<unsigned>{
-    
-public:
-    
-    Ppoisson_bis(double lambda, double T = 1): U(0,1), P(lambda*T), T(T) {};
-    
-    result_type operator()() {
-        
-        value.clear();
-        value.push_back(state(0,0));
-        
-        std::vector<double> vect_Uk(P());
-        std::generate(vect_Uk.begin(), vect_Uk.end(), U);
-        std::sort(vect_Uk.begin(), vect_Uk.end());
-        
-        for (int k = 0; k < vect_Uk.size(); k++) {
-            
-            value.push_back(state(T*vect_Uk[k], k+1));
-            
-        }
-        
-        value.push_back(state(T, P.current()));
-        return value;
-    };
-    
-protected:
-    
-    double T;
-    Uniform U;
-    Ppoisson P;
-};
-*/
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@___POISSON BIS___@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@___POISSON COMPOSE___@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
