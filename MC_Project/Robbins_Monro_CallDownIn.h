@@ -13,26 +13,27 @@
 #include <iostream>
 #include <cmath>
 #include <list>
+#include "Robbins_Monro_Payoff_EDS.h"
 
-class Robbins_Monro_CallDownIn{
+class Robbins_Monro_CallDownIn:public Robbins_Monro_Payoff_EDS{
     
 public:
     
-    typedef std::pair<double, double> state;
-    typedef std::list<state> diffusion;
+    //typedef std::pair<double, double> state;
+    //typedef std::list<state> diffusion;
     typedef std::list<state>::iterator iter;
     typedef std::list<state>::const_iterator cst_iter;
     
     
     Robbins_Monro_CallDownIn();
-    Robbins_Monro_CallDownIn(double S0, double T, double vol, double r, double L, double K);
+    Robbins_Monro_CallDownIn(double S0, double my_T, double vol, double my_r, double L, double K);
     
-    double Payoff_Call(const diffusion & eds) const;
+    virtual double Payoff_Call(const diffusion & eds) const override;
     
     double S0;
-    double T;
+    //double T;
     double vol;
-    double r;
+    //double r;
     double L;
     double K;
     

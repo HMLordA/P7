@@ -10,7 +10,7 @@
 
 Robbins_Monro_CallDownIn::Robbins_Monro_CallDownIn(){}
 
-Robbins_Monro_CallDownIn::Robbins_Monro_CallDownIn(double S0, double T, double vol, double r, double L, double K):S0(S0), T(T), vol(vol), r(r), L(L), K(K){}
+Robbins_Monro_CallDownIn::Robbins_Monro_CallDownIn(double S0, double my_T, double vol, double my_r, double L, double K):S0(S0), vol(vol), L(L), K(K){r=my_r;T=my_T;}
 
 double Robbins_Monro_CallDownIn::Payoff_Call(const diffusion & eds) const {
     

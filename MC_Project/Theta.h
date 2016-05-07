@@ -96,7 +96,7 @@ public:
             
             theta += getTh()[j] * boost::math::legendre_p(j, 2*t-1);
         }
-        return theta*theta;
+        return theta/**theta*/;
     }
     
 };

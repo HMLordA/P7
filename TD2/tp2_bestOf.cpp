@@ -29,14 +29,14 @@ static const double S01 = 100.0; static const double S02 = 95.0;
 static const double sigma1 = 0.3; static const double sigma2 = 0.4;
 static const double r = 0.04;
 
-//static const double L = 115.0; //OTM
-//static const double L = 100.0; //ATM
-static const double L = 85.0; //ITM
+static const double L = 130.0; //OTM
+//static const double L = 105.0; //ATM
+//static const double L = 70.0; //ITM
 
 static const double rho = 0.0; //0.3;
 //const double L = 60.0;
 
-static const int DIM = 2;
+static const int DIM = 1;
 static const double epsilon = 0.000001;
 static const double M = 1000000;
 static const double N = 10000;
@@ -49,14 +49,15 @@ double Payoff(const Vector& G)
 
 	//Assets prices at maturity
 	double ST1 = S01*exp((r-sigma1*sigma1/2)*T+sigma1*W1);
+	if (DIM==2){
+		double W3 = sqrt(T)*G[1];
+		//Generation of the correlated brownian
+		double W2 = rho*W1+sqrt(1-rho*rho)*W3;
+		double ST2 = S02*exp((r-sigma2*sigma2/2)*T+sigma2*W2);
 
-	double W3 = sqrt(T)*G[1];
-	//Generation of the correlated brownian
-	double W2 = rho*W1+sqrt(1-rho*rho)*W3;
-	double ST2 = S02*exp((r-sigma2*sigma2/2)*T+sigma2*W2);
-	
-	return max(max(ST1,ST2)-L,0.0);
-	//return max(ST1-L,0.0);
+		return max(max(ST1,ST2)-L,0.0);
+	}
+	return max(ST1-L,0.0);
 }
 
 //Gradient calculation

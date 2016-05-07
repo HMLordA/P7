@@ -10,7 +10,7 @@
 
 Robbins_Monro_Call_EDS::Robbins_Monro_Call_EDS(){}
 
-Robbins_Monro_Call_EDS::Robbins_Monro_Call_EDS(double S0, double T, double vol, double r, double K):S0(S0), T(T), vol(vol), r(r), K(K){}
+Robbins_Monro_Call_EDS::Robbins_Monro_Call_EDS(double S0, double my_T, double vol, double my_r, double K):S0(S0), vol(vol), K(K){r=my_r;T=my_T;}
 
 double Robbins_Monro_Call_EDS::Payoff_Call(const diffusion & eds) const {
     

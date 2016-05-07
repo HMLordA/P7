@@ -18,6 +18,8 @@
 #include <list>
 #include "Tools.h"
 #include "Theta.h"
+#include <iostream>
+#include <fstream>
 
 #include "Variables.h"
 
@@ -144,17 +146,17 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta* mytheta, 
 	//Theta_Legendre plusTheta(mytheta);
 
 	//LEGENDRE
-	vector<LegendreCarre> LC;
+	/*vector<LegendreCarre> LC;
 	for (unsigned int j=0;j<mytheta->getTh().size();j++)
 	{     
         LC.push_back(LegendreCarre(j));    
     }
 	vector<double> th = mytheta->getTh();
 	Theta_Legendre_squared* th_sq= new Theta_Legendre_squared(th);
-
+	*/
 	//HAAR
-	/*vector<HaarCarre> LC;
-	int n = int(log(double(mytheta.getTh().size())+1.0)/log(2.0))-1;
+	vector<HaarCarre> LC;
+	int n = int(log(double(mytheta->getTh().size())+1.0)/log(2.0))-1;
 	LC.push_back(HaarCarre(-1,-1));
     for (int current_n=0;current_n<=n;current_n++)
 	{
@@ -164,9 +166,9 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta* mytheta, 
         LC.push_back(HaarCarre(current_n,current_j));
 		}     
     }
- 	vector<double> th = mytheta.getTh();
-	Theta_Haar_squared th_sq(th); 
-	*/
+ 	vector<double> th = mytheta->getTh();
+	Theta_Haar_squared* th_sq = new Theta_Haar_squared(th); 
+	
 	
 	int counter = 0;
 
@@ -256,10 +258,18 @@ void Robbins_Monro_SDE_Algo(int M, double alpha, double gamma0, Theta* mytheta, 
 	double varChanged = meanSqChanged-exp(-2*Obj.r*Obj.T)*pow(S1/M,2);  
 	
 	cout<<"Theta graphe:"<<endl;
+	ofstream myfile;
+	myfile.open ("E:\\Documents\\Work\\M2MO\\MC\\Project\\MC_Project\\Resultats\\Haar_res\\result.csv");
 	for(double z=0.01;z<=1.0;z+=0.01)
 	{
 		cout<<"\t"<<z<<"\t"<<mytheta->value(z)<<endl;
 	}
+	for(double z=0.0;z<=1.01;)
+	{
+		myfile<<z<<";"<<mytheta->value(z)<<endl;
+		z+=0.05;
+	}
+	myfile.close();
 	cout <<"L'esperance simple : "<< meanSimple << endl;
     cout <<"L'esperence avec changement : "<< meanChanged << endl;
     cout <<"L'esperance du carre simple : "<< meanSqSimple << endl;
