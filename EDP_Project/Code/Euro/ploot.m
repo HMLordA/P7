@@ -20,13 +20,23 @@ PexgraphBS=[ul(t,0);PexBS;ur(t)];
 PexgraphINTRINSIC=[ul(t,0); max(K-s,0) ;ur(t)]; 
 PexgraphError=[ul(t,0);Pex-PexBS;ur(t)];
 
-%plot(sgraph,Pexgraph,'black.-'); hold on; %exact
-%plot(sgraph,PexgraphBS,'r.-'); hold on; %exact
+plot(sgraph,Pexgraph,'magenta.--'); hold on; %exact
+plot(sgraph,PexgraphBS,'green.-.'); hold on; %exact
 plot(sgraph,Pgraph,'blue.-'); hold on; %edp
-plot(sgraph,PexgraphINTRINSIC,'red.-','Linewidth',2); %intrinsic value
+legend ('\fontname{Times} \fontsize{12} Exact Merton','\fontname{Times} \fontsize{12} Theorical BS','\fontname{Times} \fontsize{12} Explicit Euler');
+%legend ('\fontname{Times} \fontsize{12} Exact Merton','\fontname{Times} \fontsize{12} Theorical BS','\fontname{Times} \fontsize{12} Crank-Nicolson');
+%legend ('\fontname{Times} \fontsize{12} Exact Merton','\fontname{Times} \fontsize{12} Theorical BS','\fontname{Times} \fontsize{12} Crank-Nicolson FFT');
+%-------------------
+%plot(sgraph,PexgraphINTRINSIC,'red.-','Linewidth',2); %intrinsic value
+%legend ('\fontname{Times} \fontsize{12} Intrinsic Value','\fontname{Times} \fontsize{12} EI Brennan Schwartz');
+%legend ('\fontname{Times} \fontsize{12} Intrinsic Value','\fontname{Times} \fontsize{12} EI Newton');
+%legend ('\fontname{Times} \fontsize{12} Intrinsic Value','\fontname{Times} \fontsize{12} CN Brennan Schwartz');
+%legend ('\fontname{Times} \fontsize{12} Intrinsic Value','\fontname{Times} \fontsize{12} CN Newton');
+%-------------------
 %plot(sgraph,100*(Pgraph-Pexgraph),'red.-');
 titre=strcat('t=',num2str(t)); title(titre);
-xlabel('s');
-ylabel('prix');
+xlabel('S');
+ylabel('Price');
+
 grid;
 

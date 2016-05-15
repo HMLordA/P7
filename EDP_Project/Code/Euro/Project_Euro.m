@@ -1,13 +1,13 @@
 %- DF - Black et Scholes 
 %- European options
-%- Olivier Bokanowski
+%- Jean-Cristophe DIETRICH & Nazar KOSTYUCHYK
 clear
 
 %------------------------
 %- DONNEES FINANCIERES / FINANCIAL DATA
 %------------------------
 global  K r sigma T Smin Smax lambda mu gamma kappa
-K=100; sigma=0.15; r=0.05; T=1;  Smin=30; Smax=500; lambda = 0.1; mu = 0.0; gamma = 0.75; 
+K=100; sigma=0.15; r=0.05; T=1; lambda = 0.1; mu = 0.0; gamma = 0.75; %Smin=30; Smax=500;
 
 kappa = exp(mu+gamma^2/2)-1; % JCD : expectancy of eta, which is log-normal
 
@@ -15,16 +15,16 @@ kappa = exp(mu+gamma^2/2)-1; % JCD : expectancy of eta, which is log-normal
 %- DONNEES NUMERIQUES / NUMERICAL DATA
 %------------------------
 global I N p nMerton
-I=40; N=40; p = 80; nMerton = 100;
+I=20; N=40; p = 20; nMerton = 100;
 %I=2*10; N=I*I/10; 
 
-SCHEMA='EI-AMER-NEWTON'; 		%- 'EE' or 'EI' or 'CN' or 'EI-AMER-UL' or 'EI-AMER-NEWTON' or 'CN-AMER-UL' or 'CN-AMER-NEWTON' 'CN-FFT'
+SCHEMA='EE'; 		%- 'EE' or 'EI' or 'CN' or 'EI-AMER-UL' or 'EI-AMER-NEWTON' or 'CN-AMER-UL' or 'CN-AMER-NEWTON' 'CN-FFT'
 CENTRAGE='CENTRE'; 	%- 'CENTRE', 'DROIT', 'GAUCHE' 
 
 %- Parameters for the graphics:
 global Xmin Xmax Ymin Ymax
 %Xmin=log(Smin/K); Xmax=log(Smax/K); Ymin=-20; Ymax=K;
-Xmin=-2; Xmax=2; Ymin=-20; Ymax=K;
+Xmin=-2.0; Xmax=2.0; Ymin=-20; Ymax=K;
 Smin=K*exp(Xmin);
 Smax=K*exp(Xmax);
 err_scale=0; %- Echelle pour le graphe d'erreur.
@@ -51,8 +51,6 @@ dt=T/N; 		%- pas de temps  / time step
 h=(Xmax-Xmin)/(I+1); %- pas d'espace  / mesh step
 s=K*exp(Xmin+(1:I)'*h); 	%- maillage      / mesh : column vector of size I, containing the mesh values s_i = Smin + i*h
 
-
-
 global x
 x= @(i) Xmin + i*h;
 %- IC : Initial Condition   = function  u0
@@ -60,8 +58,8 @@ x= @(i) Xmin + i*h;
 %- ==> COMPLETE definition of functions u0, ul, ur (inline definitions: see below)
 global ul ur g
 u0= @(s) max(K-s,0);		%- Initial values (payoff function)
-%ul= @(t,i) K*exp(-r*t)-K*exp(x(i));	%- ul= left  value, at Smin        EUROP
-ul= @(t,i) K*exp(0*t)-K*exp(x(i)); %- ul= left  value, at Smin            AMERICAIN
+ul= @(t,i) K*exp(-r*t)-K*exp(x(i));	%- ul= left  value, at Smin        EUROP
+%ul= @(t,i) K*exp(0*t)-K*exp(x(i)); %- ul= left  value, at Smin            AMERICAIN
 ur= @(t) 0;			%- ur= right value, at Smax
 g= @(eta) exp(-(log(eta)-mu)^2/(2*gamma^2))/(sqrt(2*pi)*gamma*eta) ;
 
@@ -191,7 +189,6 @@ for n=0:N-1
           
           %Xi=(((-p):p)'-p-1)*h;
           
-          
           %Xi=((-p):p)'*h;
           %VG=exp(Xi);
           %for i=1:(2*p+1);
@@ -249,13 +246,7 @@ for n=0:N-1
               VnVar = VnVar1((1):(I));
               
               %Vn1 = (Id+dt/2*A) \ ( (Id - dt/2*A) * P - dt/2*((q0+q1) - h*lambda*sum(transpose(VnVar),2) - h*lambda*sum(transpose(VnConst),2)) );
-              Vn1 = (Id+dt/2*A) \ ( (Id - dt/2*A) * P - dt/2*((q0+q1) - h*lambda*VnVar - h*lambda*VnConst) );
-
-              %zz =  abs(Vn1-Vn);
-              %zzz =   max(1,abs(Vn1));
-              %zzzz = zz./zzz;
-              %zzzzz = max(zzzz);
-              zzzzzz = max(abs(Vn1-Vn)./max(1,abs(Vn1)));           
+              Vn1 = (Id+dt/2*A) \ ( (Id - dt/2*A) * P - dt/2*((q0+q1) - h*lambda*VnVar - h*lambda*VnConst) );         
               
           end
           
@@ -269,8 +260,8 @@ for n=0:N-1
           %- pb: min(Bx-b,x-g)=0, b=Pold-dt*q(t1), g=P0(s);
           % COMPLETE:
           t1=t+dt;
-          Pold=P-dt*(q(t1)+Tug(t1)+Tud(t1));
-          c=montee(U,P-dt*(q(t1)+Tug(t1)+Tud(t1)));
+          Pold=P+dt*(q(t1)+Tug(t1)+Tud(t1));
+          c=montee(U,P+dt*(q(t1)+Tug(t1)+Tud(t1)));
           P=descente_p(L,c,P0(s));
           
           %- Verification:
@@ -283,7 +274,7 @@ for n=0:N-1
           % COMPLETE 
           t1=t+dt;
           Pold=P;
-          b=P-dt*(q(t1)+Tug(t1)+Tud(t1)); x0=P; gfinal=P0(s); eps=1e-10; kmax=50;
+          b=P+dt*(q(t1)+Tug(t1)+Tud(t1)); x0=P; gfinal=P0(s); eps=1e-10; kmax=50;
           [P,k]=newton_sol(B,b,gfinal,x0,eps,kmax);
           %- Verification
           err=norm(min(B*P-Pold,P-P0(s)));
@@ -304,8 +295,8 @@ for n=0:N-1
           Tud0 = Tud(t1);
           Tud1 = Tud(t1+dt);
           %(Id+dt/2*(A-h*lambda*G)) \ ( (Id - dt/2*(A-h*lambda*G)) * P - dt/2*((q0+q1+Tug0+Tug1+Tud0+Tud1)));
-          Pold= (Id - dt/2*(A-h*lambda*G)) * P - dt/2*((q0+q1+Tug0+Tug1+Tud0+Tud1));
-          b= (Id - dt/2*(A-h*lambda*G)) * P - dt/2*((q0+q1+Tug0+Tug1+Tud0+Tud1));
+          Pold= (Id - dt/2*(A-h*lambda*G)) * P + dt/2*((q0+q1+Tug0+Tug1+Tud0+Tud1));
+          b= (Id - dt/2*(A-h*lambda*G)) * P + dt/2*((q0+q1+Tug0+Tug1+Tud0+Tud1));
           c=montee(U,b);
           P=descente_p(L,c,P0(s));
           
@@ -325,7 +316,7 @@ for n=0:N-1
           Tud1 = Tud(t+dt);
           
           Pold=P; %TODO: check why not in tp2
-          b=(Id - dt/2*(A-h*lambda*G))*P- dt/2*((q0+q1+Tug0+Tug1+Tud0+Tud1)); 
+          b=(Id - dt/2*(A-h*lambda*G))*P + dt/2*((q0+q1+Tug0+Tug1+Tud0+Tud1)); 
           x0=P; gfinal=P0(s); eps=1e-10; kmax=50; %TODO : check value for x0 (coherent with b ?)
           % g is already a function name
           [P,k]=newton_sol(B,b,gfinal,x0,eps,kmax);
@@ -348,8 +339,11 @@ for n=0:N-1
    %COMPLETER errLI
    Pex=Merton(t1,s,K,r,sigma,nMerton);		%- Merton
    errLI=norm(P-Pex,'inf');	%- Linfty error
-   fprintf('t=%5.2f; iteration n=%4i; Err.Linf=%8.5f',t1,n+1,errLI);  
+   fprintf('t=%5.2f; iteration n=%4i; Err.Linf=%8.5f',t1,n+1,errLI); 
    fprintf('\n');
+   z=P-Pex;
+   zz=norm(P-Pex,'inf');
+   zzz=norm(z(4:length(z)),'inf');
    %input('');
   end
 
