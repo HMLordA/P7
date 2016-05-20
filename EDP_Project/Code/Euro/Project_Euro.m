@@ -15,10 +15,10 @@ kappa = exp(mu+gamma^2/2)-1; % JCD : expectancy of eta, which is log-normal
 %- DONNEES NUMERIQUES / NUMERICAL DATA
 %------------------------
 global I N p nMerton
-I=20; N=40; p = 20; nMerton = 100;
+I=160; N=160; p = 160; nMerton = 100;
 %I=2*10; N=I*I/10; 
 
-SCHEMA='EE'; 		%- 'EE' or 'EI' or 'CN' or 'EI-AMER-UL' or 'EI-AMER-NEWTON' or 'CN-AMER-UL' or 'CN-AMER-NEWTON' 'CN-FFT'
+SCHEMA='CN-FFT'; 		%- 'EE' or 'EI' or 'CN' or 'EI-AMER-UL' or 'EI-AMER-NEWTON' or 'CN-AMER-UL' or 'CN-AMER-NEWTON' 'CN-FFT'
 CENTRAGE='CENTRE'; 	%- 'CENTRE', 'DROIT', 'GAUCHE' 
 
 %- Parameters for the graphics:
@@ -241,9 +241,17 @@ for n=0:N-1
                   myMVn(m+p+I)=ur(t);
               end;    
               %VnVar = ifft(fft(myMVn).*conj(myFFTVG)); 
-              VnVar1 = ifft(fft(myMVn).*conj(FFTVG)); 
               %VnVar = VnVar1((p+1):(p+I));
+              
+              %JCD : Convolution computation by FFT (comment the next 2 lines
+              %to test the simple convolution)
+              VnVar1 = ifft(fft(myMVn).*conj(FFTVG));  
               VnVar = VnVar1((1):(I));
+              
+              %JCD : Simple convolution computation (uncomment the next 2 lines
+              %to test the simple convolution)
+              %VnVar1 = conv(myMVn,VG);
+              %VnVar = VnVar1((2*I+1):(3*I));
               
               %Vn1 = (Id+dt/2*A) \ ( (Id - dt/2*A) * P - dt/2*((q0+q1) - h*lambda*sum(transpose(VnVar),2) - h*lambda*sum(transpose(VnConst),2)) );
               Vn1 = (Id+dt/2*A) \ ( (Id - dt/2*A) * P - dt/2*((q0+q1) - h*lambda*VnVar - h*lambda*VnConst) );         
