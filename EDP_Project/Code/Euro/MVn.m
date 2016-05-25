@@ -1,4 +1,5 @@
 function M = MVn(Vn,t)
+%function creating the Un vector we consider (with correct boundary terms)
 global p x lambda h ul ur I g Xmin
 M = zeros(2*p+1,I);
 for i=1:(2*p+1);

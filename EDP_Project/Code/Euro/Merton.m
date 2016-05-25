@@ -2,7 +2,7 @@
 %- FORMULE de Merton.
 %-----------------------------------------------
 
-%- Formule de Black et scholes pour le put europeen vanille.
+%- Formule de Merton pour le put europeen vanille (base sur BS)
 function P=Merton(t,s,K,r,sigma,N)
 % Here t is Tau = T-t, so t = T-tau
 global kappa lambda T mu gamma
